@@ -136,7 +136,7 @@ const Homepage = () => {
     }
   };
 
-  const tableAssign =  (event) => {
+  const tableAssign = (event) => {
     setProject(event.project);
     setStartTime(event.start);
     setEndTime(event.end);
@@ -635,7 +635,7 @@ const Homepage = () => {
                       },
                       content: {
                         position: "absolute",
-                        top: "52%",
+                        top: "50%",
                         left: "50%",
                         transform: "translate(-50%, -50%)",
                         width: "800px",
@@ -645,27 +645,40 @@ const Homepage = () => {
                       },
                     }}
                   >
-                    <h2>Table Modal</h2>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Project</th>
-                          <th>Department</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.map((row) => (
-                          <tr key={row._id}>
-                            <td>{row.name}</td>
-                            <td>{row.project}</td>
-                            <td>{row.department}</td>
+                    <div className="d-flex justify-content-between">
+                      <h2>Employee List for Project</h2>
+                      <button type="button" onClick={closeModal} className="btn btn-outline-danger btn-sm h-25">X</button>
+                    </div>
+                    <div className="table-container-employeetoday">
+                      <table className="tablelistemployeetoday">
+                        <thead className="listemployeetodayhead">
+                          <tr>
+                            <th>Company</th>
+                            <th>Project</th>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>From Time</th>
+                            <th>To Time</th>
+                            <th>Hrs</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    <button onClick={closeModal}>Close Modal</button>
+                        </thead>
+                        <tbody>
+                          {data.map((row) => (
+                            <tr key={row._id}>
+                              <td>{row.name}</td>
+                              <td>{row.project}</td>
+                              <td>{row.department}</td>
+                              <td>{row.department}</td>
+                              <td>{row.name}</td>
+                              <td>{row.project}</td>
+                              <td>{row.department}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </Modal>
+
                   {/* modal for edit employee */}
                   {/* <Modal
                     isOpen={editModalIsOpen}
