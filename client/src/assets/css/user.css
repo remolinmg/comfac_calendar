@@ -15,47 +15,6 @@
   height: auto;
 }
 
-.table-container {
-  overflow-y: auto;
-  max-height: calc(100vh - 255px);
-  /* Adjust the max height as needed */
-}
-
-.tableuser {
-  border-collapse: collapse;
-  width: 100%;
-  outline: 1px solid #000;
-  background-color: white;
-}
-
-.theaduser {
-  font-weight: bold;
-}
-
-.thead,
-th {
-  padding: 0;
-  margin: 0;
-  outline: 2px solid black;
-  background-color: #666666;
-  z-index: 1;
-}
-
-/* .theaduser,
-th, */
-.tbodyuser td {
-  padding: 12px;
-  text-align: left;
-  outline: 1px solid #000000;
-}
-
-.Tablelistuser {
-  display: flex;
-  justify-content: start;
-  color: white;
-  font-size: 40px;
-}
-
 .search-user {
   width: 40%;
   position: relative;
@@ -80,9 +39,7 @@ th, */
 
 .search-icon:hover {
   background-color: #ccc;
-  /* Set the desired background color on hover */
-  /* border-radius: 30%; */
-  /* Optional: Add border-radius for a rounded background */
+  
 }
 
 .search-user:hover .search-icon {
@@ -94,17 +51,50 @@ th, */
   width: 100px;
 }
 
+.Tablelistuser {
+  display: flex;
+  justify-content: center;
+  color: white;
+  font-size: 40px;
+}
+
+
+/* Table start */
+
+
+.table-container-user {
+  overflow-y: auto;
+  max-height: calc(100vh - 255px);
+  /* Adjust the max height as needed */
+}
+
 .tableuser {
   border-collapse: collapse;
   width: 100%;
-  outline: 1px solid #000;
-  border: 1px solid black;
-  background-color: white;
   table-layout: fixed;
-  /* Set table layout to fixed */
+  background-color: white;
+  border: 1px solid #000;
 }
 
-.theadpeople,
+.theaduser {
+  background-color: #666666;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.theaduser th {
+  font-weight: bold;
+  padding: 12px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: black;
+}
+
+.theaduser,
 th,
 td {
   padding: 12px;
@@ -120,9 +110,8 @@ td {
   /* Display ellipsis (...) for overflowing text */
 }
 
+
 .tbodyuser {
+  max-height: calc(75vh - 40px); /* Adjust the max height based on the header height */
   overflow-y: auto;
-  max-height: calc(100vh - 250px);
-  outline: solid 1px black;
-  /* Adjust the max height as needed */
 }
