@@ -658,7 +658,7 @@ const Homepage = () => {
                       },
                       content: {
                         position: "absolute",
-                        top: "52%",
+                        top: "50%",
                         left: "50%",
                         transform: "translate(-50%, -50%)",
                         width: "800px",
@@ -670,13 +670,9 @@ const Homepage = () => {
                   >
                     <div className="d-flex justify-content-between">
                       <h2>Employee List for Project</h2>
-                      <button
-                        type="button"
-                        onClick={closeModal}
-                        className="btn btn-outline-danger btn-sm h-25"
-                      >
-                        X
-                      </button>
+
+                      <button type="button" onClick={closeModal} className="btn btn-outline-danger btn-sm h-25">X</button>
+
                     </div>
                     <div className="table-container-employeetoday">
                       <table className="tablelistemployeetoday">
@@ -707,6 +703,7 @@ const Homepage = () => {
                       </table>
                     </div>
                   </Modal>
+
                   {/* modal for edit employee */}
                   {/* <Modal
                     isOpen={editModalIsOpen}

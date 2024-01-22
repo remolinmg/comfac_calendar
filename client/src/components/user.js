@@ -172,7 +172,7 @@ const User = () => {
                 Add
               </button>
             </div>
-            <div className="table-container h-75">
+            <div className="table-container-user h-75">
               <table className="tableuser">
                 <thead className="theaduser">
                   <tr>
