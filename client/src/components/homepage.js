@@ -17,6 +17,7 @@ const Homepage = () => {
   const [projectModalIsOpen, setProjectModalIsOpen] = useState(false);
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const [tableModalIsOpen, setTableModalIsOpen] = useState(false);
+  const [eventModalIsOpen, setEventModalIsOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({});
   const [selectedRowData, setSelectedRowData] = useState("");
   const [project, setProject] = useState("");
@@ -52,28 +53,6 @@ const Homepage = () => {
     </div>
   );
 
-  const CustomDay = ({ date, events, localizer }) => (
-    <div>
-      <strong>{localizer.format(date, "ddd MM/DD")}</strong>
-      <div>
-        {events.map((event, index) => (
-          <CustomEvent key={index} event={event} />
-        ))}
-      </div>
-    </div>
-  );
-
-  const CustomWeek = ({ date, events, localizer }) => (
-    <div>
-      <strong>{localizer.format(date, "MM/DD")}</strong>
-      <div>
-        {events.map((event, index) => (
-          <CustomEvent key={index} event={event} />
-        ))}
-      </div>
-    </div>
-  );
-
   const openModal = (slotInfo) => {
     setNewEvent({
       start: slotInfo.start,
@@ -101,11 +80,16 @@ const Homepage = () => {
     setProjectModalIsOpen(true);
   };
 
+  const openEventModal = () =>{
+    setEventModalIsOpen(true);
+  }
+
   const closeModal = () => {
     setModalIsOpen(false);
     setEditModalIsOpen(false);
     setTableModalIsOpen(false);
     setProjectModalIsOpen(false);
+    setEventModalIsOpen(false);
     setNewEvent({});
   };
 
@@ -115,11 +99,6 @@ const Homepage = () => {
   };
 
   const today = new Date();
-
-  const customViews = {
-    day: CustomDay,
-    week: CustomWeek,
-  };
 
   //get data from database
   // DATA ---------------------------------------------------------------
@@ -356,30 +335,27 @@ const Homepage = () => {
                   <Calendar
                     localizer={localizer}
                     defaultDate={currentDate}
-                    events={events}
-                    components={{
-                      event: CustomEvent, // Use the custom Event component
-                    }}
                     startAccessor="start"
                     endAccessor="end"
                     onSelectEvent={tableAssign}
+                    events={events}
+                    components={{
+                      event:CustomEvent
+                    }}
                     style={{
                       position: "relative",
-                      height: 300,
+                      height: 450,
                       width: 800,
                       color: "white",
                       zIndex: 200,
                     }}
                     selectable={true}
-                    //  onSelectEvent={(event) =>
-                    //  navigateToDate(moment(event.start).toDate())
-                    // }
                     onSelectSlot={openProjectModal}
                     dayPropGetter={(date) => {
                       if (moment(date).isSame(currentDate, "day")) {
                         return {
                           style: {
-                            backgroundColor: "#00BA9D", // Change this to your desired color
+                            backgroundColor: "#00BA9D", // Today Color
                           },
                         };
                       }
@@ -463,7 +439,8 @@ const Homepage = () => {
                       </button>
                     </div>
                   </Modal>
-                  {/* modal for add employee */}
+
+                  {/* modal for assign project */}
                   <Modal
                     isOpen={modalIsOpen}
                     onRequestClose={closeModal}
@@ -705,7 +682,7 @@ const Homepage = () => {
                   </Modal>
 
                   {/* modal for edit employee */}
-                  {/* <Modal
+                  <Modal
                     isOpen={editModalIsOpen}
                     onRequestClose={closeEditModal}
                     contentLabel="Edit Assign People"
@@ -904,7 +881,54 @@ const Homepage = () => {
                         Cancel
                       </button>
                     </div>
-                  </Modal> */}
+                  </Modal>
+                  
+                   {/* table events */}
+                   <Modal
+                    isOpen={eventModalIsOpen}
+                    onRequestClose={closeModal}
+                    contentLabel="Example Modal"
+                    style={{
+                      overlay: {
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
+                        zIndex: 500,
+                      },
+                      content: {
+                        position: "absolute",
+                        top: "52%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "800px",
+                        padding: "20px",
+                        backgroundColor: "white",
+                        height: "80%",
+                      },
+                    }}
+                  >
+                    <h2>Table Modal</h2>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Project</th>
+                          <th>Department</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {events.map((row) => (
+                          <tr key={row._id}>
+                            <td>{row.project}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <button onClick={closeModal}>Close Modal</button>
+                  </Modal>
                 </div>
               </div>
             </div>
