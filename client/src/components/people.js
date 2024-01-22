@@ -164,7 +164,7 @@ const People = () => {
                 Add
               </button>
             </div>
-            <div className="table-container h-75">
+            <div className="table-container-people h-75">
               <table className="tablepeople">
                 <thead className="theadpeople">
                   <tr>
