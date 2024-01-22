@@ -10,6 +10,8 @@ import Sidebar from "../components/sidebar";
 import axios from "axios";
 
 const Homepage = () => {
+  const timeFormat = moment().format("HH:mm:ss A");
+  const dateFormat = moment().format("MM/DD/YYYY HH:mm:ss A");
   const [events, setEvents] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [projectModalIsOpen, setProjectModalIsOpen] = useState(false);
@@ -18,10 +20,31 @@ const Homepage = () => {
   const [newEvent, setNewEvent] = useState({});
   const [selectedRowData, setSelectedRowData] = useState("");
   const [project, setProject] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [startTime, setStartTime] = useState(timeFormat);
+  const [endTime, setEndTime] = useState(timeFormat);
+  const [fromTime, setFromTime] = useState(dateFormat);
+  const [toTime, setToTime] = useState(dateFormat);
   const localizer = momentLocalizer(moment);
   const [data, setData] = useState([]);
+
+  const dateStart = () => {
+    const date = moment(newEvent.start).format("MM/DD/YYYY");
+    const newFromTime = date + " " + startTime;
+    setFromTime(newFromTime);
+  };
+
+  const dateEnd = () => {
+    const date = moment(newEvent.start).format("MM/DD/YYYY");
+    const newToTime = date + " " + endTime;
+    setToTime(newToTime);
+  };
+
+  useEffect(() => {
+    dateStart();
+    dateEnd();
+
+    setNewEvent({ ...newEvent, fromtime: fromTime, totime: toTime });
+  }, [newEvent.start, startTime, endTime, fromTime, toTime]);
 
   const CustomEvent = ({ event }) => (
     <div>
@@ -84,7 +107,6 @@ const Homepage = () => {
     setTableModalIsOpen(false);
     setProjectModalIsOpen(false);
     setNewEvent({});
-
   };
 
   const closeEditModal = () => {
@@ -119,24 +141,26 @@ const Homepage = () => {
     }
   };
 
-
   const fetchEmployeeData = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/get/assignpeople', {
-        params: {
-          project,
-          startTime,
-          endTime,
-        },
-      });
+      const response = await axios.get(
+        "http://localhost:8000/get/assignpeople",
+        {
+          params: {
+            project,
+            startTime,
+            endTime,
+          },
+        }
+      );
       setData(response.data);
     } catch (error) {
-      console.error('Error:', error.message);
+      console.error("Error:", error.message);
       // Handle error here, e.g., set an error state
     }
   };
 
-  const tableAssign =  (event) => {
+  const tableAssign = (event) => {
     setProject(event.project);
     setStartTime(event.start);
     setEndTime(event.end);
@@ -150,7 +174,6 @@ const Homepage = () => {
 
   //Add data
   async function createProject() {
-
     try {
       const response = await axios.post(
         "http://localhost:8000/add/project",
@@ -195,7 +218,7 @@ const Homepage = () => {
     createProject();
     setProjectModalIsOpen(false);
     setModalIsOpen(true);
-  }
+  };
 
   // Search Function
   const [searchEvent, setSearchEvent] = useState("");
@@ -645,26 +668,44 @@ const Homepage = () => {
                       },
                     }}
                   >
-                    <h2>Table Modal</h2>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Project</th>
-                          <th>Department</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.map((row) => (
-                          <tr key={row._id}>
-                            <td>{row.name}</td>
-                            <td>{row.project}</td>
-                            <td>{row.department}</td>
+                    <div className="d-flex justify-content-between">
+                      <h2>Employee List for Project</h2>
+                      <button
+                        type="button"
+                        onClick={closeModal}
+                        className="btn btn-outline-danger btn-sm h-25"
+                      >
+                        X
+                      </button>
+                    </div>
+                    <div className="table-container-employeetoday">
+                      <table className="tablelistemployeetoday">
+                        <thead className="listemployeetodayhead">
+                          <tr>
+                            <th>Company</th>
+                            <th>Project</th>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>From Time</th>
+                            <th>To Time</th>
+                            <th>Hrs</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    <button onClick={closeModal}>Close Modal</button>
+                        </thead>
+                        <tbody>
+                          {data.map((row) => (
+                            <tr key={row._id}>
+                              <td>{row.name}</td>
+                              <td>{row.project}</td>
+                              <td>{row.department}</td>
+                              <td>{row.department}</td>
+                              <td>{row.name}</td>
+                              <td>{row.project}</td>
+                              <td>{row.department}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </Modal>
                   {/* modal for edit employee */}
                   {/* <Modal
