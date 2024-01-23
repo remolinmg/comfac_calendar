@@ -61,7 +61,7 @@ const getAssignmentPeople = async (req, res) => {
     const { project, startTime, endTime } = req.query;
   
     try {
-      const data = await Event.find({ project:project, start: startTime, end: endTime });
+      const data = await Event.find({ Project:project, From_Time: startTime, To_Time: endTime });
       res.json(data);
     } catch (error) {
       console.error(error);
