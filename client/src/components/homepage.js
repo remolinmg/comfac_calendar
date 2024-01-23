@@ -10,8 +10,8 @@ import Sidebar from "../components/sidebar";
 import axios from "axios";
 
 const Homepage = () => {
-  const timeFormat = moment().format("HH:mm:ss A");
-  const dateFormat = moment().format("MM/DD/YYYY HH:mm:ss A");
+  const timeFormat = moment().format("hh:mm:ss A");
+  const dateFormat = moment().format("MM/DD/YYYY hh:mm:ss A");
   const [events, setEvents] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [projectModalIsOpen, setProjectModalIsOpen] = useState(false);
@@ -29,13 +29,13 @@ const Homepage = () => {
   const [data, setData] = useState([]);
 
   const dateStart = () => {
-    const date = moment(newEvent.start).format("MM/DD/YYYY");
+    const date = moment(newEvent.From_Time).format("MM/DD/YYYY");
     const newFromTime = date + " " + startTime;
     setFromTime(newFromTime);
   };
 
   const dateEnd = () => {
-    const date = moment(newEvent.start).format("MM/DD/YYYY");
+    const date = moment(newEvent.To_Time).format("MM/DD/YYYY");
     const newToTime = date + " " + endTime;
     setToTime(newToTime);
   };
@@ -44,38 +44,39 @@ const Homepage = () => {
     dateStart();
     dateEnd();
 
-    setNewEvent({ ...newEvent, fromtime: fromTime, totime: toTime });
-  }, [newEvent.start, startTime, endTime, fromTime, toTime]);
+    setNewEvent({ ...newEvent, From_Time: fromTime, To_Time: toTime });
+  }, [newEvent.From_Time, startTime, endTime, fromTime, toTime]);
 
   const CustomEvent = ({ event }) => (
     <div>
-      <strong> {event.project}</strong>
+      <strong> {event.Project}</strong>
     </div>
   );
 
-  const openModal = (slotInfo) => {
+  const openModal = () => {
     setNewEvent({
-      start: slotInfo.start,
-      end: slotInfo.end,
-      timein: "",
-      timeout: "",
-      company: "",
-      project: "",
-      name: "",
-      department: "",
-      fromtime: "",
-      totime: "",
-      hours: "",
+      ID:"",
+      Company: "",
+      Project: newEvent.Project,
+      Employee: "",
+      Department:"",
+      Series:"",
+      ID_Time_Sheet:"",
+      From_Time:fromTime,
+      To_Time:toTime,
+      Project_Name:newEvent.Project_Name,
+      Hrs: "",
     });
     setModalIsOpen(true);
   };
 
-  const openProjectModal = (slotInfo) => {
+  const openProjectModal = () => {
     setNewEvent({
-      start: slotInfo.start,
-      end: slotInfo.end,
+      From_Time:fromTime,
+      To_Time:toTime,
       allDay: true,
-      project: "",
+      Project: "",
+      Project_Name: "",
     });
     setProjectModalIsOpen(true);
   };
@@ -90,11 +91,6 @@ const Homepage = () => {
     setTableModalIsOpen(false);
     setProjectModalIsOpen(false);
     setEventModalIsOpen(false);
-    setNewEvent({});
-  };
-
-  const closeEditModal = () => {
-    setEditModalIsOpen(false);
     setNewEvent({});
   };
 
@@ -140,9 +136,9 @@ const Homepage = () => {
   };
 
   const tableAssign = (event) => {
-    setProject(event.project);
-    setStartTime(event.start);
-    setEndTime(event.end);
+    setProject(event.Project);
+    setStartTime(event.To_Time);
+    setEndTime(event.From_Time);
     setTableModalIsOpen(true);
   };
 
@@ -170,7 +166,7 @@ const Homepage = () => {
 
   //Add data
   async function createAssignment(e) {
-    if (!newEvent.name || !newEvent.department || !newEvent.project) {
+    if (!newEvent.Employee || !newEvent.Department || !newEvent.Project) {
       alert("Please fill in all required fields.");
       return;
     } else {
@@ -196,7 +192,7 @@ const Homepage = () => {
   const next = () => {
     createProject();
     setProjectModalIsOpen(false);
-    setModalIsOpen(true);
+    openModal();
   };
 
   // Search Function
@@ -335,8 +331,8 @@ const Homepage = () => {
                   <Calendar
                     localizer={localizer}
                     defaultDate={currentDate}
-                    startAccessor="start"
-                    endAccessor="end"
+                    startAccessor="From_Time"
+                    endAccessor="To_Time"
                     onSelectEvent={tableAssign}
                     events={events}
                     components={{
@@ -412,11 +408,30 @@ const Homepage = () => {
                             label="Project"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.project}
+                            value={newEvent.Project}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                project: e.target.value,
+                                Project: e.target.value,
+                              })
+                            }
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-6">
+                          <TextField
+                            id="projectname"
+                            className="textfield"
+                            label="Project Name"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            value={newEvent.Project_Name}
+                            onChange={(e) =>
+                              setNewEvent({
+                                ...newEvent,
+                                Project_Name: e.target.value,
                               })
                             }
                             required
@@ -499,11 +514,11 @@ const Homepage = () => {
                             label="Company"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.company}
+                            value={newEvent.Company}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                company: e.target.value,
+                                Company: e.target.value,
                               })
                             }
                             required
@@ -518,9 +533,9 @@ const Homepage = () => {
                             variant="outlined"
                             className="textfield"
                             style={{ paddingBottom: 15, width: 355 }}
-                            value={newEvent.name}
+                            value={newEvent.Employee}
                             onChange={(e) =>
-                              setNewEvent({ ...newEvent, name: e.target.value })
+                              setNewEvent({ ...newEvent, Employee: e.target.value })
                             }
                           >
                             <option value="">Name*</option>
@@ -538,11 +553,11 @@ const Homepage = () => {
                             label="Department"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.department}
+                            value={newEvent.Department}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                department: e.target.value,
+                                Department: e.target.value,
                               })
                             }
                             required
@@ -557,11 +572,11 @@ const Homepage = () => {
                             label="From Time"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.fromtime}
+                            value={newEvent.From_Time}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                fromtime: e.target.value,
+                                From_Time: e.target.value,
                               })
                             }
                             required
@@ -574,11 +589,11 @@ const Homepage = () => {
                             label="To Time"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.totime}
+                            value={newEvent.To_Time}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                totime: e.target.value,
+                                To_Time: e.target.value,
                               })
                             }
                             required
@@ -590,11 +605,11 @@ const Homepage = () => {
                             label="Hours"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.hours}
+                            value={newEvent.Hrs}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                hours: e.target.value,
+                                Hrs: e.target.value,
                               })
                             }
                             required
@@ -667,13 +682,13 @@ const Homepage = () => {
                         <tbody>
                           {data.map((row) => (
                             <tr key={row._id}>
-                              <td>{row.name}</td>
-                              <td>{row.project}</td>
-                              <td>{row.department}</td>
-                              <td>{row.department}</td>
-                              <td>{row.name}</td>
-                              <td>{row.project}</td>
-                              <td>{row.department}</td>
+                              <td>{row.Company}</td>
+                              <td>{row.Project}</td>
+                              <td>{row.Employee}</td>
+                              <td>{row.Department}</td>
+                              <td>{row.From_Time}</td>
+                              <td>{row.To_Time}</td>
+                              <td>{row.Hrs}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -684,7 +699,7 @@ const Homepage = () => {
                   {/* modal for edit employee */}
                   <Modal
                     isOpen={editModalIsOpen}
-                    onRequestClose={closeEditModal}
+                    onRequestClose={closeModal}
                     contentLabel="Edit Assign People"
                     style={{
                       overlay: {
@@ -875,7 +890,7 @@ const Homepage = () => {
                       </button>
                       <button
                         className="modalBtn"
-                        onClick={closeEditModal}
+                        onClick={closeModal}
                         style={{ marginBottom: 15 }}
                       >
                         Cancel
