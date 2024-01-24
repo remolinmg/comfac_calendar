@@ -401,7 +401,7 @@ const Homepage = () => {
                         </div>
                       </div>
                       <div className="row">
-                        <div className="col-6">
+                        <div className="col-12">
                           <TextField
                             id="project"
                             className="textfield"
@@ -420,7 +420,7 @@ const Homepage = () => {
                         </div>
                       </div>
                       <div className="row">
-                        <div className="col-6">
+                        <div className="col-12">
                           <TextField
                             id="projectname"
                             className="textfield"
@@ -508,7 +508,7 @@ const Homepage = () => {
                         </div>
                       </div>
                       <div className="row">
-                        <div className="col-6">
+                        <div className="col-12">
                           <TextField
                             id="company"
                             label="Company"
@@ -532,7 +532,7 @@ const Homepage = () => {
                             label="Name"
                             variant="outlined"
                             className="textfield"
-                            style={{ paddingBottom: 15, width: 355 }}
+                            style={{ paddingBottom: 15, width: "100%",height:"55px", margin: "0" }}
                             value={newEvent.Employee}
                             onChange={(e) =>
                               setNewEvent({ ...newEvent, Employee: e.target.value })
@@ -552,7 +552,7 @@ const Homepage = () => {
                             className="textfield"
                             label="Department"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
+                            style={{ paddingBottom: 15, width: "100%",}}
                             value={newEvent.Department}
                             onChange={(e) =>
                               setNewEvent({
