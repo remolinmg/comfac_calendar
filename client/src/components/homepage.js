@@ -10,13 +10,14 @@ import Sidebar from "../components/sidebar";
 import axios from "axios";
 
 const Homepage = () => {
-  const timeFormat = moment().format("HH:mm:ss A");
-  const dateFormat = moment().format("MM/DD/YYYY HH:mm:ss A");
+  const timeFormat = moment().format("hh:mm:ss A");
+  const dateFormat = moment().format("MM/DD/YYYY hh:mm:ss A");
   const [events, setEvents] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [projectModalIsOpen, setProjectModalIsOpen] = useState(false);
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const [tableModalIsOpen, setTableModalIsOpen] = useState(false);
+  const [eventModalIsOpen, setEventModalIsOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({});
   const [selectedRowData, setSelectedRowData] = useState("");
   const [project, setProject] = useState("");
@@ -28,13 +29,13 @@ const Homepage = () => {
   const [data, setData] = useState([]);
 
   const dateStart = () => {
-    const date = moment(newEvent.start).format("MM/DD/YYYY");
+    const date = moment(newEvent.From_Time).format("MM/DD/YYYY");
     const newFromTime = date + " " + startTime;
     setFromTime(newFromTime);
   };
 
   const dateEnd = () => {
-    const date = moment(newEvent.start).format("MM/DD/YYYY");
+    const date = moment(newEvent.To_Time).format("MM/DD/YYYY");
     const newToTime = date + " " + endTime;
     setToTime(newToTime);
   };
@@ -43,83 +44,57 @@ const Homepage = () => {
     dateStart();
     dateEnd();
 
-    setNewEvent({ ...newEvent, fromtime: fromTime, totime: toTime });
-  }, [newEvent.start, startTime, endTime, fromTime, toTime]);
+    setNewEvent({ ...newEvent, From_Time: fromTime, To_Time: toTime });
+  }, [newEvent.From_Time, startTime, endTime, fromTime, toTime]);
 
   const CustomEvent = ({ event }) => (
     <div>
-      <strong> {event.project}</strong>
+      <strong> {event.Project}</strong>
     </div>
   );
 
-  const CustomDay = ({ date, events, localizer }) => (
-    <div>
-      <strong>{localizer.format(date, "ddd MM/DD")}</strong>
-      <div>
-        {events.map((event, index) => (
-          <CustomEvent key={index} event={event} />
-        ))}
-      </div>
-    </div>
-  );
-
-  const CustomWeek = ({ date, events, localizer }) => (
-    <div>
-      <strong>{localizer.format(date, "MM/DD")}</strong>
-      <div>
-        {events.map((event, index) => (
-          <CustomEvent key={index} event={event} />
-        ))}
-      </div>
-    </div>
-  );
-
-  const openModal = (slotInfo) => {
+  const openModal = () => {
     setNewEvent({
-      start: slotInfo.start,
-      end: slotInfo.end,
-      timein: "",
-      timeout: "",
-      company: "",
-      project: "",
-      name: "",
-      department: "",
-      fromtime: "",
-      totime: "",
-      hours: "",
+      ID:"",
+      Company: "",
+      Project: newEvent.Project,
+      Employee: "",
+      Department:"",
+      Series:"",
+      ID_Time_Sheet:"",
+      From_Time:fromTime,
+      To_Time:toTime,
+      Project_Name:newEvent.Project_Name,
+      Hrs: "",
     });
     setModalIsOpen(true);
   };
 
-  const openProjectModal = (slotInfo) => {
+  const openProjectModal = () => {
     setNewEvent({
-      start: slotInfo.start,
-      end: slotInfo.end,
+      From_Time:fromTime,
+      To_Time:toTime,
       allDay: true,
-      project: "",
+      Project: "",
+      Project_Name: "",
     });
     setProjectModalIsOpen(true);
   };
+
+  const openEventModal = () =>{
+    setEventModalIsOpen(true);
+  }
 
   const closeModal = () => {
     setModalIsOpen(false);
     setEditModalIsOpen(false);
     setTableModalIsOpen(false);
     setProjectModalIsOpen(false);
-    setNewEvent({});
-  };
-
-  const closeEditModal = () => {
-    setEditModalIsOpen(false);
+    setEventModalIsOpen(false);
     setNewEvent({});
   };
 
   const today = new Date();
-
-  const customViews = {
-    day: CustomDay,
-    week: CustomWeek,
-  };
 
   //get data from database
   // DATA ---------------------------------------------------------------
@@ -161,9 +136,9 @@ const Homepage = () => {
   };
 
   const tableAssign = (event) => {
-    setProject(event.project);
-    setStartTime(event.start);
-    setEndTime(event.end);
+    setProject(event.Project);
+    setStartTime(event.To_Time);
+    setEndTime(event.From_Time);
     setTableModalIsOpen(true);
   };
 
@@ -191,7 +166,7 @@ const Homepage = () => {
 
   //Add data
   async function createAssignment(e) {
-    if (!newEvent.name || !newEvent.department || !newEvent.project) {
+    if (!newEvent.Employee || !newEvent.Department || !newEvent.Project) {
       alert("Please fill in all required fields.");
       return;
     } else {
@@ -217,7 +192,7 @@ const Homepage = () => {
   const next = () => {
     createProject();
     setProjectModalIsOpen(false);
-    setModalIsOpen(true);
+    openModal();
   };
 
   // Search Function
@@ -356,30 +331,27 @@ const Homepage = () => {
                   <Calendar
                     localizer={localizer}
                     defaultDate={currentDate}
+                    startAccessor="From_Time"
+                    endAccessor="To_Time"
+                    onSelectEvent={tableAssign}
                     events={events}
                     components={{
-                      event: CustomEvent, // Use the custom Event component
+                      event:CustomEvent
                     }}
-                    startAccessor="start"
-                    endAccessor="end"
-                    onSelectEvent={tableAssign}
                     style={{
                       position: "relative",
-                      height: 300,
+                      height: 450,
                       width: 800,
                       color: "white",
                       zIndex: 200,
                     }}
                     selectable={true}
-                    //  onSelectEvent={(event) =>
-                    //  navigateToDate(moment(event.start).toDate())
-                    // }
                     onSelectSlot={openProjectModal}
                     dayPropGetter={(date) => {
                       if (moment(date).isSame(currentDate, "day")) {
                         return {
                           style: {
-                            backgroundColor: "#00BA9D", // Change this to your desired color
+                            backgroundColor: "#00BA9D", // Today Color
                           },
                         };
                       }
@@ -429,18 +401,37 @@ const Homepage = () => {
                         </div>
                       </div>
                       <div className="row">
-                        <div className="col-6">
+                        <div className="col-12">
                           <TextField
                             id="project"
                             className="textfield"
                             label="Project"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.project}
+                            value={newEvent.Project}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                project: e.target.value,
+                                Project: e.target.value,
+                              })
+                            }
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-12">
+                          <TextField
+                            id="projectname"
+                            className="textfield"
+                            label="Project Name"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            value={newEvent.Project_Name}
+                            onChange={(e) =>
+                              setNewEvent({
+                                ...newEvent,
+                                Project_Name: e.target.value,
                               })
                             }
                             required
@@ -463,7 +454,8 @@ const Homepage = () => {
                       </button>
                     </div>
                   </Modal>
-                  {/* modal for add employee */}
+
+                  {/* modal for assign project */}
                   <Modal
                     isOpen={modalIsOpen}
                     onRequestClose={closeModal}
@@ -516,17 +508,17 @@ const Homepage = () => {
                         </div>
                       </div>
                       <div className="row">
-                        <div className="col-6">
+                        <div className="col-12">
                           <TextField
                             id="company"
                             label="Company"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.company}
+                            value={newEvent.Company}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                company: e.target.value,
+                                Company: e.target.value,
                               })
                             }
                             required
@@ -540,10 +532,10 @@ const Homepage = () => {
                             label="Name"
                             variant="outlined"
                             className="textfield"
-                            style={{ paddingBottom: 15, width: 355 }}
-                            value={newEvent.name}
+                            style={{ paddingBottom: 15, width: "100%",height:"55px", margin: "0" }}
+                            value={newEvent.Employee}
                             onChange={(e) =>
-                              setNewEvent({ ...newEvent, name: e.target.value })
+                              setNewEvent({ ...newEvent, Employee: e.target.value })
                             }
                           >
                             <option value="">Name*</option>
@@ -560,12 +552,12 @@ const Homepage = () => {
                             className="textfield"
                             label="Department"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.department}
+                            style={{ paddingBottom: 15, width: "100%",}}
+                            value={newEvent.Department}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                department: e.target.value,
+                                Department: e.target.value,
                               })
                             }
                             required
@@ -580,11 +572,11 @@ const Homepage = () => {
                             label="From Time"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.fromtime}
+                            value={newEvent.From_Time}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                fromtime: e.target.value,
+                                From_Time: e.target.value,
                               })
                             }
                             required
@@ -597,11 +589,11 @@ const Homepage = () => {
                             label="To Time"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.totime}
+                            value={newEvent.To_Time}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                totime: e.target.value,
+                                To_Time: e.target.value,
                               })
                             }
                             required
@@ -613,11 +605,11 @@ const Homepage = () => {
                             label="Hours"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.hours}
+                            value={newEvent.Hrs}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                hours: e.target.value,
+                                Hrs: e.target.value,
                               })
                             }
                             required
@@ -690,13 +682,13 @@ const Homepage = () => {
                         <tbody>
                           {data.map((row) => (
                             <tr key={row._id}>
-                              <td>{row.name}</td>
-                              <td>{row.project}</td>
-                              <td>{row.department}</td>
-                              <td>{row.department}</td>
-                              <td>{row.name}</td>
-                              <td>{row.project}</td>
-                              <td>{row.department}</td>
+                              <td>{row.Company}</td>
+                              <td>{row.Project}</td>
+                              <td>{row.Employee}</td>
+                              <td>{row.Department}</td>
+                              <td>{row.From_Time}</td>
+                              <td>{row.To_Time}</td>
+                              <td>{row.Hrs}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -705,9 +697,9 @@ const Homepage = () => {
                   </Modal>
 
                   {/* modal for edit employee */}
-                  {/* <Modal
+                  <Modal
                     isOpen={editModalIsOpen}
-                    onRequestClose={closeEditModal}
+                    onRequestClose={closeModal}
                     contentLabel="Edit Assign People"
                     style={{
                       overlay: {
@@ -898,13 +890,60 @@ const Homepage = () => {
                       </button>
                       <button
                         className="modalBtn"
-                        onClick={closeEditModal}
+                        onClick={closeModal}
                         style={{ marginBottom: 15 }}
                       >
                         Cancel
                       </button>
                     </div>
-                  </Modal> */}
+                  </Modal>
+                  
+                   {/* table events */}
+                   <Modal
+                    isOpen={eventModalIsOpen}
+                    onRequestClose={closeModal}
+                    contentLabel="Example Modal"
+                    style={{
+                      overlay: {
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
+                        zIndex: 500,
+                      },
+                      content: {
+                        position: "absolute",
+                        top: "52%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "800px",
+                        padding: "20px",
+                        backgroundColor: "white",
+                        height: "80%",
+                      },
+                    }}
+                  >
+                    <h2>Table Modal</h2>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Project</th>
+                          <th>Department</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {events.map((row) => (
+                          <tr key={row._id}>
+                            <td>{row.project}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <button onClick={closeModal}>Close Modal</button>
+                  </Modal>
                 </div>
               </div>
             </div>
