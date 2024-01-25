@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Modal from "react-modal";
@@ -11,8 +11,6 @@ import Sidebar from "../components/sidebar";
 import axios from "axios";
 
 const Homepage = () => {
-  // const timeFormat = moment().format("hh:mm:ss A");
-  // const dateFormat = moment().format("MM/DD/YYYY hh:mm:ss A");
   const [events, setEvents] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [projectModalIsOpen, setProjectModalIsOpen] = useState(false);
@@ -24,29 +22,9 @@ const Homepage = () => {
   const [project, setProject] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [fromTime, setFromTime] = useState("");
-  const [toTime, setToTime] = useState("");
   const localizer = momentLocalizer(moment);
   const [data, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  // const dateStart = () => {
-  //   const date = moment(newEvent.start).format("LL");
-  //   const newFromTime = date + " " + startTime;
-  //   setFromTime(newFromTime);
-  // };
-
-  // const dateEnd = () => {
-  //   const date = moment(newEvent.start).format("LL");
-  //   const newToTime = date + " " + endTime;
-  //   setToTime(newToTime);
-  // };
-
-  // useEffect(() => {
-  //   dateStart();
-  //   dateEnd();
-
-  //   setNewEvent({ ...newEvent, From_Time: fromTime, To_Time: toTime });
-  // }, [newEvent.From_Time, startTime, endTime, fromTime, toTime]);
 
   //Display Project Name in the Calendar
   const CustomEvent = ({ event }) => (
@@ -279,7 +257,7 @@ const Homepage = () => {
     }
   };
 
-  //Delete 
+  //Delete
   const deleteRow = async (id) => {
     try {
       await axios.delete(
@@ -307,6 +285,36 @@ const Homepage = () => {
   function refreshPage() {
     window.location.reload(false);
   }
+
+  function convertTo12HourFormat(timeString) {
+    // Parse the time string to get hours and minutes
+    const [hours, minutes] = timeString.split(":");
+
+    // Convert hours to 12-hour format
+    const twelveHourFormat = hours % 12 || 12;
+
+    // Determine whether it is AM or PM
+    const period = hours < 12 ? "AM" : "PM";
+
+    // Return the formatted time
+    return `${twelveHourFormat}:${minutes}:00 ${period}`;
+  }
+
+  const fromTimeFormatter = (e) => {
+    const formattedTime = convertTo12HourFormat(e.target.value);
+    setNewEvent({
+      ...newEvent,
+      From_Time: format(selectedDate, "MMMM dd, yyyy") + " " + formattedTime,
+    });
+  };
+
+  const toTimeFormatter = (e) => {
+    const formattedTime = convertTo12HourFormat(e.target.value);
+    setNewEvent({
+      ...newEvent,
+      To_Time: format(selectedDate, "MMMM dd, yyyy") + " " + formattedTime,
+    });
+  };
 
   return (
     <div className="homepage-container p-0 max-vh-100 max-vw-100">
@@ -346,7 +354,7 @@ const Homepage = () => {
                     onSelectEvent={tableAssign}
                     events={events}
                     components={{
-                      event: CustomEvent
+                      event: CustomEvent,
                     }}
                     style={{
                       position: "relative",
@@ -463,13 +471,8 @@ const Homepage = () => {
                             label="From Time"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.From_Time}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
-                                From_Time: e.target.value,
-                              })
-                            }
+                            // value={newEvent.From_Time}
+                            onChange={fromTimeFormatter}
                             required
                           />
                         </div>
@@ -481,13 +484,8 @@ const Homepage = () => {
                             label="To Time"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.To_Time}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
-                                To_Time: e.target.value,
-                              })
-                            }
+                            // value={newEvent.To_Time}
+                            onChange={toTimeFormatter}
                             required
                           />
                         </div>
@@ -571,7 +569,7 @@ const Homepage = () => {
                             className="textfield"
                             label="Date"
                             variant="outlined"
-                            value={format(selectedDate, 'MMMM dd, yyyy')}
+                            value={format(selectedDate, "MMMM dd, yyyy")}
                             style={{ paddingBottom: 15, width: "100%" }}
                             readOnly
                           />
@@ -602,10 +600,18 @@ const Homepage = () => {
                             label="Name"
                             variant="outlined"
                             className="textfield"
-                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
+                            style={{
+                              paddingBottom: 15,
+                              width: "100%",
+                              height: "55px",
+                              margin: "0",
+                            }}
                             value={newEvent.Employee}
                             onChange={(e) =>
-                              setNewEvent({ ...newEvent, Employee: e.target.value })
+                              setNewEvent({
+                                ...newEvent,
+                                Employee: e.target.value,
+                              })
                             }
                           >
                             <option value="">Name*</option>
@@ -622,7 +628,7 @@ const Homepage = () => {
                             className="textfield"
                             label="Department"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%", }}
+                            style={{ paddingBottom: 15, width: "100%" }}
                             value={newEvent.Department}
                             onChange={(e) =>
                               setNewEvent({
@@ -681,8 +687,13 @@ const Homepage = () => {
                     <div className="d-flex justify-content-between">
                       <h2>Employee List for Project</h2>
 
-                      <button type="button" onClick={closeModal} className="btn btn-outline-danger btn-sm h-25">X</button>
-
+                      <button
+                        type="button"
+                        onClick={closeModal}
+                        className="btn btn-outline-danger btn-sm h-25"
+                      >
+                        X
+                      </button>
                     </div>
                     <div className="table-container-employeetoday">
                       <table className="tablelistemployeetoday">
