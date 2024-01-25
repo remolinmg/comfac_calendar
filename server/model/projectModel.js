@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 
 const projectSchema = new mongoose.Schema({
+  start:Date,
+  end:Date,
   From_Time: String,
   To_Time: String,
   allDay: Boolean,
