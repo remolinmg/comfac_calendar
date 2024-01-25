@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
+import { format } from 'date-fns';
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Modal from "react-modal";
@@ -10,8 +11,8 @@ import Sidebar from "../components/sidebar";
 import axios from "axios";
 
 const Homepage = () => {
-  const timeFormat = moment().format("hh:mm:ss A");
-  const dateFormat = moment().format("MM/DD/YYYY hh:mm:ss A");
+  // const timeFormat = moment().format("hh:mm:ss A");
+  // const dateFormat = moment().format("MM/DD/YYYY hh:mm:ss A");
   const [events, setEvents] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [projectModalIsOpen, setProjectModalIsOpen] = useState(false);
@@ -21,70 +22,73 @@ const Homepage = () => {
   const [newEvent, setNewEvent] = useState({});
   const [selectedRowData, setSelectedRowData] = useState("");
   const [project, setProject] = useState("");
-  const [startTime, setStartTime] = useState(timeFormat);
-  const [endTime, setEndTime] = useState(timeFormat);
-  const [fromTime, setFromTime] = useState(dateFormat);
-  const [toTime, setToTime] = useState(dateFormat);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [fromTime, setFromTime] = useState("");
+  const [toTime, setToTime] = useState("");
   const localizer = momentLocalizer(moment);
   const [data, setData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  // const dateStart = () => {
+  //   const date = moment(newEvent.start).format("LL");
+  //   const newFromTime = date + " " + startTime;
+  //   setFromTime(newFromTime);
+  // };
 
-  const dateStart = () => {
-    const date = moment(newEvent.From_Time).format("MM/DD/YYYY");
-    const newFromTime = date + " " + startTime;
-    setFromTime(newFromTime);
-  };
+  // const dateEnd = () => {
+  //   const date = moment(newEvent.start).format("LL");
+  //   const newToTime = date + " " + endTime;
+  //   setToTime(newToTime);
+  // };
 
-  const dateEnd = () => {
-    const date = moment(newEvent.To_Time).format("MM/DD/YYYY");
-    const newToTime = date + " " + endTime;
-    setToTime(newToTime);
-  };
+  // useEffect(() => {
+  //   dateStart();
+  //   dateEnd();
 
-  useEffect(() => {
-    dateStart();
-    dateEnd();
+  //   setNewEvent({ ...newEvent, From_Time: fromTime, To_Time: toTime });
+  // }, [newEvent.From_Time, startTime, endTime, fromTime, toTime]);
 
-    setNewEvent({ ...newEvent, From_Time: fromTime, To_Time: toTime });
-  }, [newEvent.From_Time, startTime, endTime, fromTime, toTime]);
-
+  //Display Project Name in the Calendar
   const CustomEvent = ({ event }) => (
     <div>
       <strong> {event.Project}</strong>
     </div>
   );
 
+  // Asssign Modal
   const openModal = () => {
     setNewEvent({
-      ID:"",
+      ID: "",
       Company: "",
       Project: newEvent.Project,
       Employee: "",
-      Department:"",
-      Series:"",
-      ID_Time_Sheet:"",
-      From_Time:fromTime,
-      To_Time:toTime,
-      Project_Name:newEvent.Project_Name,
-      Hrs: "",
+      Department: "",
+      Series: "",
+      ID_Time_Sheet: "",
+      From_Time: newEvent.From_Time,
+      To_Time: newEvent.To_Time,
+      Project_Name: newEvent.Project_Name,
+      Hrs: newEvent.Hrs,
     });
     setModalIsOpen(true);
   };
 
-  const openProjectModal = () => {
+  //Project Modal
+  const openProjectModal = (slotInfo) => {
     setNewEvent({
-      From_Time:fromTime,
-      To_Time:toTime,
+      start: slotInfo.start,
+      end: slotInfo.end,
+      From_Time: "",
+      To_Time: "",
       allDay: true,
       Project: "",
       Project_Name: "",
     });
     setProjectModalIsOpen(true);
+    setSelectedDate(slotInfo.start);
   };
 
-  const openEventModal = () =>{
-    setEventModalIsOpen(true);
-  }
-
+  //Close all modals
   const closeModal = () => {
     setModalIsOpen(false);
     setEditModalIsOpen(false);
@@ -92,9 +96,8 @@ const Homepage = () => {
     setProjectModalIsOpen(false);
     setEventModalIsOpen(false);
     setNewEvent({});
+    refreshPage();
   };
-
-  const today = new Date();
 
   //get data from database
   // DATA ---------------------------------------------------------------
@@ -137,8 +140,8 @@ const Homepage = () => {
 
   const tableAssign = (event) => {
     setProject(event.Project);
-    setStartTime(event.To_Time);
-    setEndTime(event.From_Time);
+    setStartTime(event.From_Time);
+    setEndTime(event.To_Time);
     setTableModalIsOpen(true);
   };
 
@@ -147,7 +150,7 @@ const Homepage = () => {
     fetchEmployeeData();
   }, [project, startTime, endTime, tableModalIsOpen]);
 
-  //Add data
+  //Add Project Data
   async function createProject() {
     try {
       const response = await axios.post(
@@ -164,7 +167,7 @@ const Homepage = () => {
     }
   }
 
-  //Add data
+  //Add Assign Data
   async function createAssignment(e) {
     if (!newEvent.Employee || !newEvent.Department || !newEvent.Project) {
       alert("Please fill in all required fields.");
@@ -189,6 +192,7 @@ const Homepage = () => {
     }
   }
 
+  //Project to Assign
   const next = () => {
     createProject();
     setProjectModalIsOpen(false);
@@ -242,6 +246,7 @@ const Homepage = () => {
     // Perform any other navigation logic as needed
   };
 
+  //Edit Modal
   const editModal = (event) => {
     setSelectedRowData(event._id);
     setNewEvent({
@@ -274,6 +279,7 @@ const Homepage = () => {
     }
   };
 
+  //Delete 
   const deleteRow = async (id) => {
     try {
       await axios.delete(
@@ -287,7 +293,7 @@ const Homepage = () => {
     }
   };
 
-  //set option in selectfield
+  //set option in selectfield in name field
   const [options, setOptions] = useState([]);
 
   useEffect(() => {
@@ -297,6 +303,10 @@ const Homepage = () => {
       .then((data) => setOptions(data))
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
+
+  function refreshPage() {
+    window.location.reload(false);
+  }
 
   return (
     <div className="homepage-container p-0 max-vh-100 max-vw-100">
@@ -331,12 +341,12 @@ const Homepage = () => {
                   <Calendar
                     localizer={localizer}
                     defaultDate={currentDate}
-                    startAccessor="From_Time"
-                    endAccessor="To_Time"
+                    startAccessor="start"
+                    endAccessor="end"
                     onSelectEvent={tableAssign}
                     events={events}
                     components={{
-                      event:CustomEvent
+                      event: CustomEvent
                     }}
                     style={{
                       position: "relative",
@@ -396,6 +406,12 @@ const Homepage = () => {
                             variant="outlined"
                             value={moment(newEvent.start).format("LL")}
                             style={{ paddingBottom: 15, width: "100%" }}
+                            onChange={(e) =>
+                              setNewEvent({
+                                ...newEvent,
+                                start: e.target.value,
+                              })
+                            }
                             readOnly
                           />
                         </div>
@@ -432,6 +448,60 @@ const Homepage = () => {
                               setNewEvent({
                                 ...newEvent,
                                 Project_Name: e.target.value,
+                              })
+                            }
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-4">
+                          <TextField
+                            type="time"
+                            id="fromtime"
+                            className="textfield"
+                            label="From Time"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            value={newEvent.From_Time}
+                            onChange={(e) =>
+                              setNewEvent({
+                                ...newEvent,
+                                From_Time: e.target.value,
+                              })
+                            }
+                            required
+                          />
+                        </div>
+                        <div className="col-4">
+                          <TextField
+                            type="time"
+                            id="totime"
+                            className="textfield"
+                            label="To Time"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            value={newEvent.To_Time}
+                            onChange={(e) =>
+                              setNewEvent({
+                                ...newEvent,
+                                To_Time: e.target.value,
+                              })
+                            }
+                            required
+                          />
+                        </div>
+                        <div className="col-4">
+                          <TextField
+                            id="hours"
+                            label="Hours"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            value={newEvent.Hrs}
+                            onChange={(e) =>
+                              setNewEvent({
+                                ...newEvent,
+                                Hrs: e.target.value,
                               })
                             }
                             required
@@ -501,7 +571,7 @@ const Homepage = () => {
                             className="textfield"
                             label="Date"
                             variant="outlined"
-                            value={moment(newEvent.start).format("LL")}
+                            value={format(selectedDate, 'MMMM dd, yyyy')}
                             style={{ paddingBottom: 15, width: "100%" }}
                             readOnly
                           />
@@ -532,7 +602,7 @@ const Homepage = () => {
                             label="Name"
                             variant="outlined"
                             className="textfield"
-                            style={{ paddingBottom: 15, width: "100%",height:"55px", margin: "0" }}
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
                             value={newEvent.Employee}
                             onChange={(e) =>
                               setNewEvent({ ...newEvent, Employee: e.target.value })
@@ -552,64 +622,12 @@ const Homepage = () => {
                             className="textfield"
                             label="Department"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%",}}
+                            style={{ paddingBottom: 15, width: "100%", }}
                             value={newEvent.Department}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
                                 Department: e.target.value,
-                              })
-                            }
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="row">
-                        <div className="col-4">
-                          <TextField
-                            id="fromtime"
-                            className="textfield"
-                            label="From Time"
-                            variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.From_Time}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
-                                From_Time: e.target.value,
-                              })
-                            }
-                            required
-                          />
-                        </div>
-                        <div className="col-4">
-                          <TextField
-                            id="totime"
-                            className="textfield"
-                            label="To Time"
-                            variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.To_Time}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
-                                To_Time: e.target.value,
-                              })
-                            }
-                            required
-                          />
-                        </div>
-                        <div className="col-4">
-                          <TextField
-                            id="hours"
-                            label="Hours"
-                            variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.Hrs}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
-                                Hrs: e.target.value,
                               })
                             }
                             required
@@ -742,7 +760,7 @@ const Homepage = () => {
                             className="textfield"
                             label="Date"
                             variant="outlined"
-                            value={moment(newEvent.start).format("LL")}
+                            value={newEvent.start}
                             style={{ paddingBottom: 15, width: "100%" }}
                             readOnly
                           />
@@ -897,9 +915,9 @@ const Homepage = () => {
                       </button>
                     </div>
                   </Modal>
-                  
-                   {/* table events */}
-                   <Modal
+
+                  {/* table events */}
+                  <Modal
                     isOpen={eventModalIsOpen}
                     onRequestClose={closeModal}
                     contentLabel="Example Modal"

@@ -351,12 +351,14 @@ const People = () => {
             left: 0,
             right: 0,
             bottom: 0,
+            zIndex: 100,
           },
           content: {
             width: "500px",
             height: "450px",
             margin: "auto",
             paddingTop: "20px",
+            zIndex: 100,
           },
         }}
       >
