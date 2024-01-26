@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
-import { format } from "date-fns";
+import { format } from 'date-fns';
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Modal from "react-modal";
@@ -11,17 +11,20 @@ import Sidebar from "../components/sidebar";
 import axios from "axios";
 
 const Homepage = () => {
+  // const timeFormat = moment().format("hh:mm:ss A");
+  // const dateFormat = moment().format("MM/DD/YYYY hh:mm:ss A");
   const [events, setEvents] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [projectModalIsOpen, setProjectModalIsOpen] = useState(false);
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const [tableModalIsOpen, setTableModalIsOpen] = useState(false);
   const [eventModalIsOpen, setEventModalIsOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState({});
   const [selectedRowData, setSelectedRowData] = useState("");
   const [project, setProject] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [fromTime, setFromTime] = useState("");
+  const [toTime, setToTime] = useState("");
   const localizer = momentLocalizer(moment);
   const [data, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -33,7 +36,107 @@ const Homepage = () => {
     </div>
   );
 
-  // Asssign Modal
+
+  //Project Modal----------------------------------------------
+
+  const [newEvent, setNewEvent] = useState({
+    start: "",
+    end: "",
+    From_Time: "",
+    To_Time: "",
+    allDay: true,
+    Project: "",
+    Project_Name: "",
+    Hrs: ""
+  });
+
+
+  const openProjectModal = (slotInfo) => {
+    console.log("slotInfo", slotInfo); // Check the value of slotInfo
+    setNewEvent({
+      ...newEvent,
+      start: slotInfo.start,
+      end: slotInfo.end,
+      From_Time: "",
+      To_Time: "",
+      allDay: true,
+      Project: "",
+      Project_Name: "",
+    });
+    console.log("newEvent", newEvent); // Check the value of newEvent after updating
+    setProjectModalIsOpen(true);
+    setSelectedDate(slotInfo.start);
+  };
+
+
+  const [validationErrors, setValidationErrors] = useState({});
+  const [projects, setProjects] = useState([]);
+
+  // Define a function to retrieve existing projects for the selected date
+  const getExistingProjectsForDate = (selectedDate) => {
+    // Filter projects array to get projects that match the selected date
+    return projects.filter(project => project.date === selectedDate);
+  };
+
+  // Function to validate form data
+  const validateForm = () => {
+    const errors = {};
+
+    // Check if any required field is empty
+    if (!newEvent.Project.trim()) {
+      errors.project = "Project is required";
+    } else {
+      errors.project = ""; // Clear the error message if the field is not empty
+    }
+
+    if (!newEvent.Project_Name.trim()) {
+      errors.projectName = "Project Name is required";
+    } else {
+      errors.projectName = ""; // Clear the error message if the field is not empty
+    }
+
+    if (!newEvent.From_Time.trim()) {
+      errors.fromTime = "From Time is required";
+    } else {
+      errors.fromTime = ""; // Clear the error message if the field is not empty
+    }
+
+    if (!newEvent.To_Time.trim()) {
+      errors.toTime = "To Time is required";
+    } else {
+      errors.toTime = ""; // Clear the error message if the field is not empty
+    }
+
+    if (!newEvent.Hrs.trim()) {
+      errors.hours = "Hours is required";
+    } else {
+      errors.hours = ""; // Clear the error message if the field is not empty
+    }
+
+    setValidationErrors(errors);
+
+    // Return true if there are no errors
+    return Object.keys(errors).every(key => !errors[key]);
+  };
+
+
+
+  const next = () => {
+    const isValid = validateForm(); // Validate the form
+    if (isValid) {
+      createProject(); // Proceed if the form is valid
+      setProjectModalIsOpen(false);
+      openModal();
+    }
+  };
+
+
+
+
+  // Asssign Modal-----------------------------------------------------
+
+  const [assignmentValidationErrors, setAssignmentValidationErrors] = useState({});
+
   const openModal = () => {
     setNewEvent({
       ID: "",
@@ -51,22 +154,68 @@ const Homepage = () => {
     setModalIsOpen(true);
   };
 
-  //Project Modal
-  const openProjectModal = (slotInfo) => {
-    setNewEvent({
-      start: slotInfo.start,
-      end: slotInfo.end,
-      From_Time: "",
-      To_Time: "",
-      allDay: true,
-      Project: "",
-      Project_Name: "",
-    });
-    setProjectModalIsOpen(true);
-    setSelectedDate(slotInfo.start);
+  // Function to validate form data for Assign People modal
+  const validateAssignmentForm = () => {
+    const errors = {};
+
+    // Check if any required field is empty
+    if (!newEvent.Employee.trim()) {
+      errors.employee = "Employee is required";
+    } else {
+      errors.employee = ""; // Clear the error message if the field is not empty
+    }
+
+    if (!newEvent.Department.trim()) {
+      errors.department = "Department is required";
+    } else {
+      errors.department = ""; // Clear the error message if the field is not empty
+    }
+
+    if (!newEvent.Company.trim()) {
+      errors.company = "Company is required";
+    } else {
+      errors.company = ""; // Clear the error message if the field is not empty
+    }
+
+    setAssignmentValidationErrors(errors);
+
+    // Return true if there are no errors
+    return Object.values(errors).every(error => !error);
+  };
+  // Function to handle form submission for Assign People modal
+  const handleAssignmentSubmit = (e) => {
+    e.preventDefault();
+    const isValid = validateAssignmentForm(); // Validate the form
+    if (isValid) {
+      createAssignment(); // Proceed if the form is valid
+      closeModal(); // Close the modal after submission
+    }
   };
 
-  //Close all modals
+  // Update the createAssignment function to include validation check
+  const createAssignment = async () => {
+    // Check if there are any validation errors
+    if (!validateAssignmentForm()) {
+      return; // Return early if there are validation errors
+    }
+
+    // Proceed with assignment logic
+    try {
+      const response = await axios.post("http://localhost:8000/add/assign", newEvent);
+      if (response.status === 201) {
+        alert("Assigned successfully");
+        fetchData(); // Update the data after assignment
+      } else {
+        alert("Assignment failed");
+      }
+    } catch (error) {
+      alert("Error");
+    }
+  };
+
+
+
+  //Close all modals--------------------------------------------------------------
   const closeModal = () => {
     setModalIsOpen(false);
     setEditModalIsOpen(false);
@@ -145,39 +294,11 @@ const Homepage = () => {
     }
   }
 
-  //Add Assign Data
-  async function createAssignment(e) {
-    if (!newEvent.Employee || !newEvent.Department || !newEvent.Project) {
-      alert("Please fill in all required fields.");
-      return;
-    } else {
-      e.preventDefault();
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/add/assign",
-          newEvent
-        );
 
-        if (response.status === 201) {
-          alert("Assigned successfully");
-          fetchData();
-        } else {
-          alert("Assignment failed");
-        }
-      } catch (error) {
-        alert("Error");
-      }
-    }
-  }
 
-  //Project to Assign
-  const next = () => {
-    createProject();
-    setProjectModalIsOpen(false);
-    openModal();
-  };
 
-  // Search Function
+
+  // Search Function----------------------------------------------------------------------------
   const [searchEvent, setSearchEvent] = useState("");
   const [foundEventDate, setFoundEventDate] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -224,7 +345,17 @@ const Homepage = () => {
     // Perform any other navigation logic as needed
   };
 
-  //Edit Modal
+  // Table modal -------------------
+  const [rowData, setRowData] = useState(null);
+
+  // Function to handle click on table row and open edit modal
+  const handleRowClick = (row) => {
+    setRowData(row); // Set the data of the clicked row
+    setEditModalIsOpen(true); // Open the edit modal
+  };
+
+
+  //Edit Modal----------------------------------------------------------------------------------------
   const editModal = (event) => {
     setSelectedRowData(event._id);
     setNewEvent({
@@ -257,7 +388,7 @@ const Homepage = () => {
     }
   };
 
-  //Delete
+  //Delete 
   const deleteRow = async (id) => {
     try {
       await axios.delete(
@@ -285,36 +416,6 @@ const Homepage = () => {
   function refreshPage() {
     window.location.reload(false);
   }
-
-  function convertTo12HourFormat(timeString) {
-    // Parse the time string to get hours and minutes
-    const [hours, minutes] = timeString.split(":");
-
-    // Convert hours to 12-hour format
-    const twelveHourFormat = hours % 12 || 12;
-
-    // Determine whether it is AM or PM
-    const period = hours < 12 ? "AM" : "PM";
-
-    // Return the formatted time
-    return `${twelveHourFormat}:${minutes}:00 ${period}`;
-  }
-
-  const fromTimeFormatter = (e) => {
-    const formattedTime = convertTo12HourFormat(e.target.value);
-    setNewEvent({
-      ...newEvent,
-      From_Time: format(selectedDate, "MMMM dd, yyyy") + " " + formattedTime,
-    });
-  };
-
-  const toTimeFormatter = (e) => {
-    const formattedTime = convertTo12HourFormat(e.target.value);
-    setNewEvent({
-      ...newEvent,
-      To_Time: format(selectedDate, "MMMM dd, yyyy") + " " + formattedTime,
-    });
-  };
 
   return (
     <div className="homepage-container p-0 max-vh-100 max-vw-100">
@@ -354,7 +455,7 @@ const Homepage = () => {
                     onSelectEvent={tableAssign}
                     events={events}
                     components={{
-                      event: CustomEvent,
+                      event: CustomEvent
                     }}
                     style={{
                       position: "relative",
@@ -404,7 +505,7 @@ const Homepage = () => {
                     }}
                   >
                     <div className="assign-form d-flex flex-column justify-content-center popup-form">
-                      <h2>Assign People</h2>
+                      <h2 className="text-danger">Create Project</h2>
                       <div className="row">
                         <div className="col-12">
                           <TextField
@@ -433,12 +534,18 @@ const Homepage = () => {
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
                             value={newEvent.Project}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
+                            onChange={(e) => {
+                              setNewEvent((prevState) => ({
+                                ...prevState,
                                 Project: e.target.value,
-                              })
-                            }
+                              }));
+                              setValidationErrors((prevErrors) => ({
+                                ...prevErrors,
+                                project: e.target.value.trim() ? "" : "Project is required",
+                              }));
+                            }}
+                            error={!!validationErrors.project}
+                            helperText={validationErrors.project}
                             required
                           />
                         </div>
@@ -452,12 +559,18 @@ const Homepage = () => {
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
                             value={newEvent.Project_Name}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
+                            onChange={(e) => {
+                              setNewEvent((prevState) => ({
+                                ...prevState,
                                 Project_Name: e.target.value,
-                              })
-                            }
+                              }));
+                              setValidationErrors((prevErrors) => ({
+                                ...prevErrors,
+                                projectName: e.target.value.trim() ? "" : "Project Name is required",
+                              }));
+                            }}
+                            error={!!validationErrors.projectName}
+                            helperText={validationErrors.projectName}
                             required
                           />
                         </div>
@@ -471,8 +584,19 @@ const Homepage = () => {
                             label="From Time"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            // value={newEvent.From_Time}
-                            onChange={fromTimeFormatter}
+                            value={newEvent.From_Time}
+                            onChange={(e) => {
+                              setNewEvent((prevState) => ({
+                                ...prevState,
+                                From_Time: e.target.value,
+                              }));
+                              setValidationErrors((prevErrors) => ({
+                                ...prevErrors,
+                                fromTime: e.target.value.trim() ? "" : "From Time is required",
+                              }));
+                            }}
+                            error={!!validationErrors.fromTime}
+                            helperText={validationErrors.fromTime}
                             required
                           />
                         </div>
@@ -484,8 +608,19 @@ const Homepage = () => {
                             label="To Time"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            // value={newEvent.To_Time}
-                            onChange={toTimeFormatter}
+                            value={newEvent.To_Time}
+                            onChange={(e) => {
+                              setNewEvent((prevState) => ({
+                                ...prevState,
+                                To_Time: e.target.value,
+                              }));
+                              setValidationErrors((prevErrors) => ({
+                                ...prevErrors,
+                                toTime: e.target.value.trim() ? "" : "To Time is required",
+                              }));
+                            }}
+                            error={!!validationErrors.toTime}
+                            helperText={validationErrors.toTime}
                             required
                           />
                         </div>
@@ -496,12 +631,18 @@ const Homepage = () => {
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
                             value={newEvent.Hrs}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
+                            onChange={(e) => {
+                              setNewEvent((prevState) => ({
+                                ...prevState,
                                 Hrs: e.target.value,
-                              })
-                            }
+                              }));
+                              setValidationErrors((prevErrors) => ({
+                                ...prevErrors,
+                                hours: e.target.value.trim() ? "" : "Hours is required",
+                              }));
+                            }}
+                            error={!!validationErrors.hours}
+                            helperText={validationErrors.hours}
                             required
                           />
                         </div>
@@ -569,7 +710,7 @@ const Homepage = () => {
                             className="textfield"
                             label="Date"
                             variant="outlined"
-                            value={format(selectedDate, "MMMM dd, yyyy")}
+                            value={format(selectedDate, 'MMMM dd, yyyy')}
                             style={{ paddingBottom: 15, width: "100%" }}
                             readOnly
                           />
@@ -589,6 +730,8 @@ const Homepage = () => {
                                 Company: e.target.value,
                               })
                             }
+                            error={!!assignmentValidationErrors.company}
+                            helperText={assignmentValidationErrors.company}
                             required
                           />
                         </div>
@@ -600,19 +743,13 @@ const Homepage = () => {
                             label="Name"
                             variant="outlined"
                             className="textfield"
-                            style={{
-                              paddingBottom: 15,
-                              width: "100%",
-                              height: "55px",
-                              margin: "0",
-                            }}
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
                             value={newEvent.Employee}
                             onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
-                                Employee: e.target.value,
-                              })
+                              setNewEvent({ ...newEvent, Employee: e.target.value })
                             }
+                            error={!!assignmentValidationErrors.employee}
+                            required
                           >
                             <option value="">Name*</option>
                             {options.map((option) => (
@@ -628,7 +765,7 @@ const Homepage = () => {
                             className="textfield"
                             label="Department"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
+                            style={{ paddingBottom: 15, width: "100%", }}
                             value={newEvent.Department}
                             onChange={(e) =>
                               setNewEvent({
@@ -636,6 +773,8 @@ const Homepage = () => {
                                 Department: e.target.value,
                               })
                             }
+                            error={!!assignmentValidationErrors.department}
+                            helperText={assignmentValidationErrors.department}
                             required
                           />
                         </div>
@@ -674,10 +813,10 @@ const Homepage = () => {
                       },
                       content: {
                         position: "absolute",
-                        top: "50%",
+                        top: "52%",
                         left: "50%",
                         transform: "translate(-50%, -50%)",
-                        width: "800px",
+                        width: "1200px",
                         padding: "20px",
                         backgroundColor: "white",
                         height: "80%",
@@ -685,15 +824,13 @@ const Homepage = () => {
                     }}
                   >
                     <div className="d-flex justify-content-between">
-                      <h2>Employee List for Project</h2>
-
-                      <button
-                        type="button"
-                        onClick={closeModal}
-                        className="btn btn-outline-danger btn-sm h-25"
-                      >
-                        X
-                      </button>
+                      <div>
+                        <h2>Employee List for Project</h2>
+                      </div>
+                      <div>
+                      <button type="button" class="btn btn-danger">Delete</button>
+                        <button type="button" onClick={closeModal} className="btn btn-outline-danger">X</button>
+                      </div>
                     </div>
                     <div className="table-container-employeetoday">
                       <table className="tablelistemployeetoday">
@@ -706,11 +843,12 @@ const Homepage = () => {
                             <th>From Time</th>
                             <th>To Time</th>
                             <th>Hrs</th>
+
                           </tr>
                         </thead>
                         <tbody>
                           {data.map((row) => (
-                            <tr key={row._id}>
+                            <tr key={row._id} onClick={() => handleRowClick(row)}>
                               <td>{row.Company}</td>
                               <td>{row.Project}</td>
                               <td>{row.Employee}</td>
