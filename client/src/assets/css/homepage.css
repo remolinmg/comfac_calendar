@@ -66,6 +66,15 @@
 
 .modalBtn:hover {
     background-color: #00BA9D;
+    color:white;
+}
+.modalBtndelete{
+    border: none;
+    height: 40px;
+}
+.modalBtndelete:hover{
+    background-color:#dc3545;
+    color:white;
 }
 
 .rbc-calendar {
