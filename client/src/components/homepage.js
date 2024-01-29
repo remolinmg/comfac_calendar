@@ -61,36 +61,43 @@ const Homepage = () => {
   // Function to validate form data
   const validateForm = () => {
     const errors = {};
+    const { Project = '', Project_Name = '', From_Time = '', To_Time = '', Hrs = '' } = newEvent;
 
     // Check if any required field is empty
-    if (!newEvent.Project.trim()) {
+    if (!Project.trim()) {
       errors.project = "Project is required";
     } else {
       errors.project = ""; // Clear the error message if the field is not empty
     }
 
-    if (!newEvent.Project_Name.trim()) {
+    if (!Project_Name.trim()) {
       errors.projectName = "Project Name is required";
     } else {
       errors.projectName = ""; // Clear the error message if the field is not empty
     }
 
-    if (!newEvent.From_Time.trim()) {
+    if (!From_Time.trim()) {
       errors.fromTime = "From Time is required";
     } else {
       errors.fromTime = ""; // Clear the error message if the field is not empty
     }
 
-    if (!newEvent.To_Time.trim()) {
+    if (!To_Time.trim()) {
       errors.toTime = "To Time is required";
     } else {
       errors.toTime = ""; // Clear the error message if the field is not empty
     }
 
-    if (!newEvent.Hrs.trim()) {
+    if (!Hrs.trim()) {
       errors.hours = "Hours is required";
     } else {
       errors.hours = ""; // Clear the error message if the field is not empty
+    }
+
+    // Check if both time fields are filled, clear errors if they are
+    if (From_Time.trim() && To_Time.trim()) {
+      errors.fromTime = "";
+      errors.toTime = "";
     }
 
     setValidationErrors(errors);
@@ -98,6 +105,8 @@ const Homepage = () => {
     // Return true if there are no errors
     return Object.keys(errors).every((key) => !errors[key]);
   };
+
+
 
   const next = () => {
     const isValid = validateForm(); // Validate the form
@@ -170,6 +179,7 @@ const Homepage = () => {
   // };
 
   // Update the createAssignment function to include validation check
+
   const createAssignment = async () => {
     // Check if there are any validation errors
     if (!validateAssignmentForm()) {
@@ -185,6 +195,24 @@ const Homepage = () => {
       if (response.status === 201) {
         alert("Assigned successfully");
         fetchData(); // Update the data after assignment
+
+        // Clear all fields after successful assignment
+        setNewEvent({
+          ID: "",
+          Company: "",
+          Project: newEvent.Project,
+          Employee: "",
+          Department: "",
+          Series: "",
+          ID_Time_Sheet: "",
+          From_Time: newEvent.From_Time,
+          To_Time: newEvent.To_Time,
+          Project_Name: newEvent.Project_Name,
+          Hrs: newEvent.Hrs,
+        });
+
+        // Clear validation errors
+        setAssignmentValidationErrors({});
       } else {
         alert("Assignment failed");
       }
@@ -193,10 +221,18 @@ const Homepage = () => {
     }
   };
 
+
+
+  const clearValidationErrors = (field) => {
+    setAssignmentValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      [field]: '', // Clear the error message for the specified field
+    }));
+  };
+
   //Close all modals--------------------------------------------------------------
   const closeModal = () => {
     setModalIsOpen(false);
-    setEditModalIsOpen(false);
     setTableModalIsOpen(false);
     setProjectModalIsOpen(false);
     setEventModalIsOpen(false);
@@ -516,7 +552,7 @@ const Homepage = () => {
                     }}
                   >
                     <div className="assign-form d-flex flex-column justify-content-center popup-form">
-                      <h2 className="text-danger">Create Project</h2>
+                      <h2 className="text-success">Create Project</h2>
                       <div className="row">
                         <div className="col-12">
                           <TextField
@@ -720,12 +756,13 @@ const Homepage = () => {
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
                             value={newEvent.Company}
-                            onChange={(e) =>
+                            onChange={(e) => {
                               setNewEvent({
                                 ...newEvent,
                                 Company: e.target.value,
-                              })
-                            }
+                              });
+                              clearValidationErrors('company'); // Clear validation error for company
+                            }}
                             error={!!assignmentValidationErrors.company}
                             helperText={assignmentValidationErrors.company}
                             required
@@ -739,19 +776,12 @@ const Homepage = () => {
                             label="Name"
                             variant="outlined"
                             className="textfield"
-                            style={{
-                              paddingBottom: 15,
-                              width: "100%",
-                              height: "55px",
-                              margin: "0",
-                            }}
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
                             value={newEvent.Employee}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
-                                Employee: e.target.value,
-                              })
-                            }
+                            onChange={(e) => {
+                              setNewEvent({ ...newEvent, Employee: e.target.value });
+                              clearValidationErrors('employee'); // Clear validation error for employee
+                            }}
                             error={!!assignmentValidationErrors.employee}
                             required
                           >
@@ -769,14 +799,15 @@ const Homepage = () => {
                             className="textfield"
                             label="Department"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
+                            style={{ paddingBottom: 15, width: "100%", }}
                             value={newEvent.Department}
-                            onChange={(e) =>
+                            onChange={(e) => {
                               setNewEvent({
                                 ...newEvent,
                                 Department: e.target.value,
-                              })
-                            }
+                              });
+                              clearValidationErrors('department'); // Clear validation error for department
+                            }}
                             error={!!assignmentValidationErrors.department}
                             helperText={assignmentValidationErrors.department}
                             required
@@ -792,11 +823,15 @@ const Homepage = () => {
                       </button>
                       <button
                         className="modalBtn"
-                        onClick={closeModal}
+                        onClick={() => {
+                          closeModal(); // Close the "Assign People" modal
+                          openProjectModal({ start: selectedDate, end: selectedDate }); // Open the "Create Project" modal with appropriate parameters
+                        }}
                         style={{ marginBottom: 15 }}
                       >
                         Cancel
                       </button>
+
                     </div>
                   </Modal>
 
@@ -827,18 +862,26 @@ const Homepage = () => {
                       },
                     }}
                   >
-                    <div className="d-flex justify-content-between">
+                    <div className="d-flex justify-content-between ">
                       <div>
                         <h2>Employee List for Project</h2>
                       </div>
                       <div>
-                        <button type="button" class="btn btn-danger">
-                          Delete
-                        </button>
                         <button
                           type="button"
+                          onClick={() => {
+                            setEditModalIsOpen(true); // Open the Edit Modal
+                          }}
+                          className="addemployee btn btn-outline-success m-1 mt-0"
+                        >
+                          Add
+                        </button>
+
+                        <button
+
+                          type="button"
                           onClick={closeModal}
-                          className="btn btn-outline-danger"
+                          className="btn btn-outline-danger m-1 mt-0"
                         >
                           X
                         </button>
@@ -875,6 +918,9 @@ const Homepage = () => {
                         </tbody>
                       </table>
                     </div>
+                    <button type="button" class="btn btn-danger float-xl-end mt-2">
+                      Delete Project
+                    </button>
                   </Modal>
 
                   {/* modal for edit employee */}
@@ -1063,18 +1109,18 @@ const Homepage = () => {
                         Edit
                       </button>
                       <button
-                        className="modalBtn"
+                        className="modalBtndelete "
                         onClick={deleteRow}
                         style={{ marginBottom: 15 }}
                       >
                         Delete
                       </button>
                       <button
-                        className="modalBtn"
-                        onClick={closeModal}
+                        className="modalBtn "
+                        onClick={() => setEditModalIsOpen(false)} // Close only the Edit Modal
                         style={{ marginBottom: 15 }}
                       >
-                        Cancel
+                        Back
                       </button>
                     </div>
                   </Modal>
