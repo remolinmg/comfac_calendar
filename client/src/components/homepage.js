@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import { format } from "date-fns";
 import moment from "moment";
@@ -32,6 +32,9 @@ const Homepage = () => {
       <strong> {event.Project}</strong>
     </div>
   );
+
+
+
 
   //Project Modal----------------------------------------------
 
@@ -118,6 +121,7 @@ const Homepage = () => {
   };
 
   // Asssign Modal-----------------------------------------------------
+
 
   const [assignmentValidationErrors, setAssignmentValidationErrors] = useState(
     {}
@@ -229,6 +233,26 @@ const Homepage = () => {
       [field]: '', // Clear the error message for the specified field
     }));
   };
+
+
+  // text area assign employee-----------
+  const [selectedNames, setSelectedNames] = useState([]);
+  const textAreaRef = useRef(null);
+  const appendToTextArea = (value) => {
+    textAreaRef.current.value += `${value}\n`; // Append selected option to textarea with a newline
+  };
+  const removeName = (index) => {
+    const updatedNames = [...selectedNames];
+    updatedNames.splice(index, 1); // Remove the selected name from the array
+    setSelectedNames(updatedNames); // Update the state
+    updateTextArea(); // Update the textarea content
+  };
+
+  const updateTextArea = () => {
+    textAreaRef.current.value = selectedNames.join('\n'); // Update textarea content
+  };
+
+
 
   //Close all modals--------------------------------------------------------------
   const closeModal = () => {
@@ -524,7 +548,7 @@ const Homepage = () => {
                       return {}; // Return an empty object for days with default styling
                     }}
                   />
-                  {/* project modal */}
+                  {/* Create Project modal */}
                   <Modal
                     isOpen={projectModalIsOpen}
                     onRequestClose={closeModal}
@@ -696,7 +720,7 @@ const Homepage = () => {
                     </div>
                   </Modal>
 
-                  {/* modal for assign project */}
+                  {/* Assign Employee modal */}
                   <Modal
                     isOpen={modalIsOpen}
                     onRequestClose={closeModal}
@@ -781,6 +805,7 @@ const Homepage = () => {
                             onChange={(e) => {
                               setNewEvent({ ...newEvent, Employee: e.target.value });
                               clearValidationErrors('employee'); // Clear validation error for employee
+                              appendToTextArea(e.target.value); // Append selected option to textarea
                             }}
                             error={!!assignmentValidationErrors.employee}
                             required
@@ -812,6 +837,24 @@ const Homepage = () => {
                             helperText={assignmentValidationErrors.department}
                             required
                           />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-12">
+                          <textarea
+                            ref={textAreaRef} // Attach the ref to the textarea
+                            id="textareaassign"
+                            label="textareaassign"
+                            variant="outlined"
+                            style={{ paddingBottom: 30, width: "100%", marginBottom: 20 }}
+                            required
+                          />
+                          {selectedNames.map((name, index) => (
+                            <span key={index}>
+                              {name}
+                              <button onClick={() => removeName(index)}>X</button> {/* Remove button */}
+                            </span>
+                          ))}
                         </div>
                       </div>
                       <button
@@ -923,7 +966,8 @@ const Homepage = () => {
                     </button>
                   </Modal>
 
-                  {/* modal for edit employee */}
+                  {/* Edit Employee */}
+
                   <Modal
                     isOpen={editModalIsOpen}
                     onRequestClose={closeModal}
