@@ -46,7 +46,7 @@ const updateAssignment = async (req, res) => {
 
 const deleteAssignment = async (req, res) => {
   try {
-    const deletedDocument = await Event.findByIdAndDelete(req.params.id);
+    const deletedDocument = await Event.findOneAndDelete(req.body);
     if (!deletedDocument) {
       return res.status(404).json({ message: 'Document not found' });
     }
