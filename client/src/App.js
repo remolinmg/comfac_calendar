@@ -7,6 +7,7 @@ import Homepage from "./components/homepage";
 import Signup from "./components/signup";
 import People from "./components/people";
 import User from "./components/user";
+import Sample from "./components/sample";
 
 //Utils
 import ProtectedRoute from "../src/utils/protectedRoute"
@@ -30,11 +31,12 @@ function App() {
         <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/user" element={<User />} />
+        <Route path="/sample" element={<Sample />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Homepage />}  />
             <Route path="/profile" element={<Profile />}  />
             <Route path="/people" element={<People />}  />
+            <Route path="/user" element={<User />} />
           </Route>
         </Routes>
       </BrowserRouter>

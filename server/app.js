@@ -14,6 +14,7 @@ const userRoute = require('./routes/userRoute');
 const projectRoute = require('./routes/projectRoute');
 const peopleRoute = require('./routes/peopleRoute');
 const eventsRoute = require('./routes/eventsRoute');
+const sampleRoute = require('./routes/route');
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -26,6 +27,7 @@ app.use('/', userRoute);
 app.use('/', projectRoute);
 app.use('/', peopleRoute);
 app.use('/', eventsRoute);
+app.use('/', sampleRoute);
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
