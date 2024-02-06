@@ -8,6 +8,7 @@ const projectSchema = new mongoose.Schema({
   allDay: Boolean,
   Project: String,
   Project_Name: String,
+  Hrs:String
 });
 
 const Project = mongoose.model('Project', projectSchema);

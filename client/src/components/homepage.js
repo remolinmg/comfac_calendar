@@ -19,12 +19,15 @@ const Homepage = () => {
   const [eventModalIsOpen, setEventModalIsOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({});
   const [selectedRowData, setSelectedRowData] = useState("");
+  const [selectedProject, setSelectedProject] = useState("");
   const [project, setProject] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const localizer = momentLocalizer(moment);
   const [data, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [addHours,setAddHours] =useState('')
+  const [addProjectName,setAddProjectName] =useState('')
 
   //Display Project Name in the Calendar
   const CustomEvent = ({ event }) => (
@@ -47,6 +50,7 @@ const Homepage = () => {
       allDay: true,
       Project: "",
       Project_Name: "",
+      Hrs: "",
     });
     setProjectModalIsOpen(true);
     setSelectedDate(slotInfo.start);
@@ -141,6 +145,26 @@ const Homepage = () => {
       Project_Name: newEvent.Project_Name,
       Hrs: newEvent.Hrs,
     });
+    setModalIsOpen(true);
+  };
+
+  //add more employee
+
+  const openADDModal = () => {
+    setNewEvent({
+      ID: "",
+      Company: "",
+      Project: project,
+      Employee: "",
+      Department: "",
+      Series: "",
+      ID_Time_Sheet: "",
+      From_Time: startTime,
+      To_Time: endTime,
+      Project_Name: addProjectName,
+      Hrs: addHours,
+    });
+    setTableModalIsOpen(false);
     setModalIsOpen(true);
   };
 
@@ -307,7 +331,11 @@ const Homepage = () => {
     setProject(event.Project);
     setStartTime(event.From_Time);
     setEndTime(event.To_Time);
+    setSelectedProject(event._id);
+    setAddHours(event.Hrs);
+    setAddProjectName(event.Project_Name);
     setTableModalIsOpen(true);
+    
   };
 
   useEffect(() => {
@@ -422,18 +450,41 @@ const Homepage = () => {
   };
 
   //Delete
-  const deleteRow = async (id) => {
+  const deleteRow = async () => {
     try {
       await axios.delete(
-        `http://localhost:8000/delete/assign/${selectedRowData}`
+        'http://localhost:8000/delete/assign',
+        { Projectoject:project,
+          To_Time: endTime,
+          From_Time: startTime, } // Send parameters in the request body
       );
+
+      fetchData();
+      alert('Deleted Successfully');
+      modalIsOpen();
+    } catch (error) {
+      console.error(error);
+      // Handle errors as needed
+    }
+  };
+
+  //Delete Project
+
+  const deleteProject = async (id) => {
+    try {
+      await axios.delete(
+        `http://localhost:8000/delete/project/${selectedProject}`
+      );
+      deleteRow();
       fetchData();
       setEditModalIsOpen(false);
       alert("Deleted Successfully");
+      closeModal();
     } catch (error) {
       console.error(error);
     }
   };
+
 
   //set option in selectfield in name field
   const [options, setOptions] = useState([]);
@@ -685,6 +736,7 @@ const Homepage = () => {
                             label="Hours"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
+                            value={newEvent.Hrs}
                             onChange={(e) => {
                               setNewEvent((prevState) => ({
                                 ...prevState,
@@ -747,7 +799,7 @@ const Homepage = () => {
                       },
                     }}
                   >
-                    <div className="assign-form d-flex flex-column justify-content-center popup-form">
+                    <div className="assign-form d-flex flex-column justify-cfontent-center popup-form">
                       <h2>Assign People</h2>
                       <div class="mb-3 form-check">
                         <input
@@ -802,7 +854,7 @@ const Homepage = () => {
                             className="textfield"
                             style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
                             value={newEvent.Employee}
-                            onChange={(e) => {
+                            onChange={(e)=>{
                               setNewEvent({ ...newEvent, Employee: e.target.value });
                               clearValidationErrors('employee'); // Clear validation error for employee
                               appendToTextArea(e.target.value); // Append selected option to textarea
@@ -848,13 +900,8 @@ const Homepage = () => {
                             variant="outlined"
                             style={{ paddingBottom: 30, width: "100%", marginBottom: 20 }}
                             required
+                            readOnly
                           />
-                          {selectedNames.map((name, index) => (
-                            <span key={index}>
-                              {name}
-                              <button onClick={() => removeName(index)}>X</button> {/* Remove button */}
-                            </span>
-                          ))}
                         </div>
                       </div>
                       <button
@@ -912,9 +959,7 @@ const Homepage = () => {
                       <div>
                         <button
                           type="button"
-                          onClick={() => {
-                            setEditModalIsOpen(true); // Open the Edit Modal
-                          }}
+                          onClick={openADDModal}
                           className="addemployee btn btn-outline-success m-1 mt-0"
                         >
                           Add
@@ -961,7 +1006,7 @@ const Homepage = () => {
                         </tbody>
                       </table>
                     </div>
-                    <button type="button" class="btn btn-danger float-xl-end mt-2">
+                    <button type="button" class="btn btn-danger float-xl-end mt-2" onClick={deleteProject}>
                       Delete Project
                     </button>
                   </Modal>
