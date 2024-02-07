@@ -33,7 +33,7 @@ const Homepage = () => {
   //set option in selectfield in name field
   const [options, setOptions] = useState([]);
 
-  
+
   //Display Project Name in the Calendar
   const CustomEvent = ({ event }) => (
     <div>
@@ -450,7 +450,7 @@ const Homepage = () => {
   // Table modal -------------------
 
   // Function to handle click on table row and open edit modal
- 
+
 
   //Edit Modal----------------------------------------------------------------------------------------
   const handleRowClick = (event) => {
@@ -465,7 +465,7 @@ const Homepage = () => {
       Hrs: event.Hrs,
     });
     setEditModalIsOpen(true);
-   
+
   };
 
   const updateRowData = async (id) => {
@@ -881,7 +881,7 @@ const Homepage = () => {
                         </div>
                       </div>
 
-                      <div className="row">
+                      <div className="row ">
                         <div className="col-6">
                           <select
                             id="name"
@@ -947,7 +947,7 @@ const Homepage = () => {
                             id="textareaassign"
                             label="textareaassign"
                             variant="outlined"
-                            style={{ paddingBottom: 30, width: "100%", marginBottom: 20 }}
+                            style={{ paddingBottom: 30, width: "100%", marginBottom: "20%", marginTop: 20, height: "80%" }}
                             onChange={(e) => {
                               // Split the textarea value into an array of names
                               const namesFromTextarea = e.target.value.split('\n').filter(Employee => Employee.trim() !== '');
@@ -963,25 +963,25 @@ const Homepage = () => {
                           />
                         </div>
                       </div>
-
-                      <button
-                        className="modalBtn"
-                        onClick={createAssignment}
-                        style={{ marginBottom: 15 }}
-                      >
-                        Assign
-                      </button>
-                      <button
-                        className="modalBtn"
-                        onClick={() => {
-                          closeModal(); // Close the "Assign People" modal
-                          openProjectModal({ start: selectedDate, end: selectedDate }); // Open the "Create Project" modal with appropriate parameters
-                        }}
-                        style={{ marginBottom: 15 }}
-                      >
-                        Cancel
-                      </button>
-
+                      <div className="row">
+                        <button
+                          className="modalBtn"
+                          onClick={createAssignment}
+                          style={{ marginBottom: 15 }}
+                        >
+                          Assign
+                        </button>
+                        <button
+                          className="modalBtn"
+                          onClick={() => {
+                            closeModal(); // Close the "Assign People" modal
+                            openProjectModal({ start: selectedDate, end: selectedDate }); // Open the "Create Project" modal with appropriate parameters
+                          }}
+                          style={{ marginBottom: 15 }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   </Modal>
 
@@ -1198,7 +1198,7 @@ const Homepage = () => {
                         </div>
                       </div>
 
-                      <div className="row">
+                      <div className="row mt-3">
                         <div className="col-4">
                           <TextField
                             id="fromtime"
