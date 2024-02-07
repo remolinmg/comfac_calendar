@@ -29,6 +29,10 @@ const Homepage = () => {
   const [addHours, setAddHours] = useState('')
   const [addProjectName, setAddProjectName] = useState('')
 
+  //set option in selectfield in name field
+  const [options, setOptions] = useState([]);
+
+  
   //Display Project Name in the Calendar
   const CustomEvent = ({ event }) => (
     <div>
@@ -170,27 +174,27 @@ const Homepage = () => {
   const validateAssignmentForm = () => {
     const errors = {};
 
-  
+
     // Check if Department is defined and is a non-empty string
     if (!newEvent.Department || typeof newEvent.Department !== 'string' || !newEvent.Department.trim()) {
       errors.department = "Department is required";
     } else {
       errors.department = ""; // Clear the error message if the field is not empty
     }
-  
+
     // Check if Company is defined and is a non-empty string
     if (!newEvent.Company || typeof newEvent.Company !== 'string' || !newEvent.Company.trim()) {
       errors.company = "Company is required";
     } else {
       errors.company = ""; // Clear the error message if the field is not empty
     }
-  
+
     setAssignmentValidationErrors(errors);
-  
+
     // Return true if there are no errors
     return Object.values(errors).every((error) => !error);
   };
-  
+
   // Function to handle form submission for Assign People modal
   // const handleAssignmentSubmit = (e) => {
   //   e.preventDefault();
@@ -305,6 +309,20 @@ const Homepage = () => {
 
   // Assuming you have state for employeeOptions
   const [employeeOptions, setEmployeeOptions] = useState([]);
+
+
+
+
+
+  const uniqueOptions = options.reduce((unique, option) => {
+    const exists = unique.some((u) => u.department === option.department);
+    if (!exists) {
+      unique.push(option);
+    }
+    return unique;
+  }, []);
+
+
 
   //Close all modals--------------------------------------------------------------
   const closeModal = () => {
@@ -516,8 +534,7 @@ const Homepage = () => {
   };
 
 
-  //set option in selectfield in name field
-  const [options, setOptions] = useState([]);
+
 
   useEffect(() => {
     // Fetch data from the database or API endpoint
@@ -573,14 +590,6 @@ const Homepage = () => {
 
 
 
-
-  const uniqueOptions = options.reduce((unique, option) => {
-    const exists = unique.some((u) => u.department === option.department);
-    if (!exists) {
-      unique.push(option);
-    }
-    return unique;
-  }, []);
 
 
   return (
