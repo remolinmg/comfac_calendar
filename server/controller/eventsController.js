@@ -5,15 +5,48 @@ const addAssignment = async (req, res) => {
   try {
     const newEvent = req.body;
 
-    // Save the newEvent to the database
-    const createdEvent = await Event.create(newEvent);
+    const employeeData = Array.isArray(newEvent.Employee)
+      ? newEvent.Employee.map(employee => ({
+          ID: newEvent.ID,
+          Company: newEvent.Company,
+          Project: newEvent.Project,
+          Employee: employee,
+          Department: newEvent.Department,
+          Series: newEvent.Series,
+          ID_Time_Sheet: newEvent.ID_Time_Sheet,
+          From_Time: newEvent.From_Time,
+          To_Time: newEvent.To_Time,
+          Project_Name: newEvent.Project_Name,
+          Hrs: newEvent.Hrs,
+        }))
+      : [
+          {
+            ID: newEvent.ID,
+            Company: newEvent.Company,
+            Project: newEvent.Project,
+            Employee: newEvent.Employee,
+            Department: newEvent.Department,
+            Series: newEvent.Series,
+            ID_Time_Sheet: newEvent.ID_Time_Sheet,
+            From_Time: newEvent.From_Time,
+            To_Time: newEvent.To_Time,
+            Project_Name: newEvent.Project_Name,
+            Hrs: newEvent.Hrs,
+          },
+        ];
 
-    res.status(201).json(createdEvent);
+    const createdEvent = await Event.insertMany(employeeData);
+
+    res.status(201).json({ success: true, createdEvent });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
+
+
 
 const getAssignment = async (req,res) =>{
   try {
