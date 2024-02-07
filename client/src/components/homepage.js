@@ -29,10 +29,11 @@ const Homepage = () => {
   const [addHours, setAddHours] = useState('')
   const [addProjectName, setAddProjectName] = useState('')
 
+
   //set option in selectfield in name field
   const [options, setOptions] = useState([]);
 
-  
+
   //Display Project Name in the Calendar
   const CustomEvent = ({ event }) => (
     <div>
@@ -248,9 +249,6 @@ const Homepage = () => {
     }
   };
 
-
-
-
   const clearValidationErrors = (field) => {
     setAssignmentValidationErrors((prevErrors) => ({
       ...prevErrors,
@@ -310,10 +308,7 @@ const Homepage = () => {
   // Assuming you have state for employeeOptions
   const [employeeOptions, setEmployeeOptions] = useState([]);
 
-
-
-
-
+  // Dropdown of department option in Add Assign
   const uniqueOptions = options.reduce((unique, option) => {
     const exists = unique.some((u) => u.department === option.department);
     if (!exists) {
@@ -381,7 +376,6 @@ const Homepage = () => {
     setAddHours(event.Hrs);
     setAddProjectName(event.Project_Name);
     setTableModalIsOpen(true);
-
   };
 
   useEffect(() => {
@@ -454,30 +448,24 @@ const Homepage = () => {
   };
 
   // Table modal -------------------
-  const [rowData, setRowData] = useState(null);
 
   // Function to handle click on table row and open edit modal
-  const handleRowClick = (row) => {
-    setRowData(row); // Set the data of the clicked row
-    setEditModalIsOpen(true); // Open the edit modal
-  };
+
 
   //Edit Modal----------------------------------------------------------------------------------------
-  const editModal = (event) => {
+  const handleRowClick = (event) => {
     setSelectedRowData(event._id);
     setNewEvent({
-      start: event.start,
-      end: event.end,
-      allDay: event.allDay,
-      company: event.company,
-      project: event.project,
-      name: event.name,
-      department: event.department,
-      fromtime: event.fromtime,
-      totime: event.totime,
-      hours: event.hours,
+      Company: event.Company,
+      Project: event.Project,
+      Employee: event.Employee,
+      Department: event.Department,
+      From_Time: event.From_Time,
+      To_Time: event.To_Time,
+      Hrs: event.Hrs,
     });
     setEditModalIsOpen(true);
+
   };
 
   const updateRowData = async (id) => {
@@ -501,15 +489,15 @@ const Homepage = () => {
       await axios.delete(
         'http://localhost:8000/delete/assign',
         {
-          Projectoject: project,
+          Project: project,
           To_Time: endTime,
           From_Time: startTime,
+          selectedRowData
         } // Send parameters in the request body
       );
 
-      fetchData();
+      fetchEmployeeData();
       alert('Deleted Successfully');
-      modalIsOpen();
     } catch (error) {
       console.error(error);
       // Handle errors as needed
@@ -585,12 +573,6 @@ const Homepage = () => {
       To_Time: e.target.value.trim() ? "" : "To Time is required",
     }));
   };
-
-
-
-
-
-
 
   return (
     <div className="homepage-container p-0 max-vh-100 max-vw-100">
@@ -899,7 +881,7 @@ const Homepage = () => {
                         </div>
                       </div>
 
-                      <div className="row">
+                      <div className="row ">
                         <div className="col-6">
                           <select
                             id="name"
@@ -965,7 +947,7 @@ const Homepage = () => {
                             id="textareaassign"
                             label="textareaassign"
                             variant="outlined"
-                            style={{ paddingBottom: 30, width: "100%", marginBottom: 20 }}
+                            style={{ paddingBottom: 30, width: "100%", marginBottom: "20%", marginTop: 20, height: "80%" }}
                             onChange={(e) => {
                               // Split the textarea value into an array of names
                               const namesFromTextarea = e.target.value.split('\n').filter(Employee => Employee.trim() !== '');
@@ -981,25 +963,25 @@ const Homepage = () => {
                           />
                         </div>
                       </div>
-
-                      <button
-                        className="modalBtn"
-                        onClick={createAssignment}
-                        style={{ marginBottom: 15 }}
-                      >
-                        Assign
-                      </button>
-                      <button
-                        className="modalBtn"
-                        onClick={() => {
-                          closeModal(); // Close the "Assign People" modal
-                          openProjectModal({ start: selectedDate, end: selectedDate }); // Open the "Create Project" modal with appropriate parameters
-                        }}
-                        style={{ marginBottom: 15 }}
-                      >
-                        Cancel
-                      </button>
-
+                      <div className="row">
+                        <button
+                          className="modalBtn"
+                          onClick={createAssignment}
+                          style={{ marginBottom: 15 }}
+                        >
+                          Assign
+                        </button>
+                        <button
+                          className="modalBtn"
+                          onClick={() => {
+                            closeModal(); // Close the "Assign People" modal
+                            openProjectModal({ start: selectedDate, end: selectedDate }); // Open the "Create Project" modal with appropriate parameters
+                          }}
+                          style={{ marginBottom: 15 }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   </Modal>
 
@@ -1090,7 +1072,6 @@ const Homepage = () => {
                   </Modal>
 
                   {/* Edit Employee */}
-
                   <Modal
                     isOpen={editModalIsOpen}
                     onRequestClose={closeModal}
@@ -1130,30 +1111,17 @@ const Homepage = () => {
                         </label>
                       </div>
                       <div className="row">
-                        <div className="col-12">
-                          <TextField
-                            id="date"
-                            className="textfield"
-                            label="Date"
-                            variant="outlined"
-                            value={newEvent.start}
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            readOnly
-                          />
-                        </div>
-                      </div>
-                      <div className="row">
                         <div className="col-6">
                           <TextField
                             id="company"
                             label="Company"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.company}
+                            value={newEvent.Company}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                company: e.target.value,
+                                Company: e.target.value,
                               })
                             }
                             required
@@ -1166,11 +1134,11 @@ const Homepage = () => {
                             label="Project"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.project}
+                            value={newEvent.Project}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                project: e.target.value,
+                                Project: e.target.value,
                               })
                             }
                             required
@@ -1184,39 +1152,53 @@ const Homepage = () => {
                             label="Name"
                             variant="outlined"
                             className="textfield"
-                            style={{ paddingBottom: 15, width: 355 }}
-                            value={newEvent.name}
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
+                            value={newEvent.Employee}
+                            error={!!assignmentValidationErrors.employee}
+                            required
                             onChange={(e) =>
-                              setNewEvent({ ...newEvent, name: e.target.value })
+                              setNewEvent({
+                                ...newEvent,
+                                Employee: e.target.value,
+                              })
                             }
                           >
-                            <option value="">Name*</option>
-                            {options.map((option) => (
+                            <option value="" disabled>
+                              Select Name
+                            </option>
+                            {employeeOptions.map((option) => (
                               <option key={option.id} value={option.value}>
                                 {option.name}
                               </option>
                             ))}
                           </select>
+
                         </div>
+
                         <div className="col-6">
-                          <TextField
+                          <select
                             id="department"
                             className="textfield"
                             label="Department"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.department}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
-                                department: e.target.value,
-                              })
-                            }
+                            value={newEvent.Department}
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
+                            onChange={handleDepartmentChange}
+                            error={!!assignmentValidationErrors.department}
+                            helperText={assignmentValidationErrors.department}
                             required
-                          />
+                          >
+                            <option value="">Department*</option>
+                            {uniqueOptions.map((option) => (
+                              <option key={option.id} value={option.value}>
+                                {option.department}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                       </div>
-                      <div className="row">
+
+                      <div className="row mt-3">
                         <div className="col-4">
                           <TextField
                             id="fromtime"
@@ -1224,7 +1206,7 @@ const Homepage = () => {
                             label="From Time"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.fromtime}
+                            value={newEvent.From_Time}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
@@ -1241,7 +1223,7 @@ const Homepage = () => {
                             label="To Time"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.totime}
+                            value={newEvent.To_Time}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
@@ -1257,11 +1239,11 @@ const Homepage = () => {
                             label="Hours"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.hours}
+                            value={newEvent.Hrs}
                             onChange={(e) =>
                               setNewEvent({
                                 ...newEvent,
-                                hours: e.target.value,
+                                Hrs: e.target.value,
                               })
                             }
                             required
@@ -1290,53 +1272,6 @@ const Homepage = () => {
                         Back
                       </button>
                     </div>
-                  </Modal>
-
-                  {/* table events */}
-                  <Modal
-                    isOpen={eventModalIsOpen}
-                    onRequestClose={closeModal}
-                    contentLabel="Example Modal"
-                    style={{
-                      overlay: {
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
-                        zIndex: 500,
-                      },
-                      content: {
-                        position: "absolute",
-                        top: "52%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: "800px",
-                        padding: "20px",
-                        backgroundColor: "white",
-                        height: "80%",
-                      },
-                    }}
-                  >
-                    <h2>Table Modal</h2>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Project</th>
-                          <th>Department</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {events.map((row) => (
-                          <tr key={row._id}>
-                            <td>{row.project}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    <button onClick={closeModal}>Close Modal</button>
                   </Modal>
                 </div>
               </div>
