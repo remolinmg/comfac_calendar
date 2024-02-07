@@ -26,8 +26,8 @@ const Homepage = () => {
   const localizer = momentLocalizer(moment);
   const [data, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [addHours,setAddHours] =useState('')
-  const [addProjectName,setAddProjectName] =useState('')
+  const [addHours, setAddHours] = useState('')
+  const [addProjectName, setAddProjectName] = useState('')
 
   //Display Project Name in the Calendar
   const CustomEvent = ({ event }) => (
@@ -35,8 +35,6 @@ const Homepage = () => {
       <strong> {event.Project}</strong>
     </div>
   );
-
-
 
 
   //Project Modal----------------------------------------------
@@ -136,7 +134,7 @@ const Homepage = () => {
       ID: "",
       Company: "",
       Project: newEvent.Project,
-      Employee: "",
+      Employee: [],
       Department: "",
       Series: "",
       ID_Time_Sheet: "",
@@ -155,7 +153,7 @@ const Homepage = () => {
       ID: "",
       Company: "",
       Project: project,
-      Employee: "",
+      Employee: [],
       Department: "",
       Series: "",
       ID_Time_Sheet: "",
@@ -172,30 +170,27 @@ const Homepage = () => {
   const validateAssignmentForm = () => {
     const errors = {};
 
-    // Check if any required field is empty
-    if (!newEvent.Employee.trim()) {
-      errors.employee = "Employee is required";
-    } else {
-      errors.employee = ""; // Clear the error message if the field is not empty
-    }
-
-    if (!newEvent.Department.trim()) {
+  
+    // Check if Department is defined and is a non-empty string
+    if (!newEvent.Department || typeof newEvent.Department !== 'string' || !newEvent.Department.trim()) {
       errors.department = "Department is required";
     } else {
       errors.department = ""; // Clear the error message if the field is not empty
     }
-
-    if (!newEvent.Company.trim()) {
+  
+    // Check if Company is defined and is a non-empty string
+    if (!newEvent.Company || typeof newEvent.Company !== 'string' || !newEvent.Company.trim()) {
       errors.company = "Company is required";
     } else {
       errors.company = ""; // Clear the error message if the field is not empty
     }
-
+  
     setAssignmentValidationErrors(errors);
-
+  
     // Return true if there are no errors
     return Object.values(errors).every((error) => !error);
   };
+  
   // Function to handle form submission for Assign People modal
   // const handleAssignmentSubmit = (e) => {
   //   e.preventDefault();
@@ -229,7 +224,7 @@ const Homepage = () => {
           ID: "",
           Company: "",
           Project: newEvent.Project,
-          Employee: "",
+          Employee: [],
           Department: "",
           Series: "",
           ID_Time_Sheet: "",
@@ -251,6 +246,7 @@ const Homepage = () => {
 
 
 
+
   const clearValidationErrors = (field) => {
     setAssignmentValidationErrors((prevErrors) => ({
       ...prevErrors,
@@ -266,10 +262,15 @@ const Homepage = () => {
     textAreaRef.current.value += `${value}\n`; // Append selected option to textarea with a newline
   };
   const removeName = (index) => {
-    const updatedNames = [...selectedNames];
-    updatedNames.splice(index, 1); // Remove the selected name from the array
-    setSelectedNames(updatedNames); // Update the state
-    updateTextArea(); // Update the textarea content
+    const updatedNames = [...newEvent.Employee];
+    updatedNames.splice(index, 1);
+
+    setNewEvent((prevEvent) => ({
+      ...prevEvent,
+      Employee: updatedNames,
+    }));
+
+    updateTextArea(updatedNames);
   };
 
   const updateTextArea = () => {
@@ -277,6 +278,33 @@ const Homepage = () => {
   };
 
 
+  //--------------------------------------------------------------
+
+  // Function to get employees based on the selected department
+  const getEmployeesByDepartment = (selectedDepartment) => {
+    return options.filter((option) => option.department === selectedDepartment);
+  };
+
+  // Inside your component
+  const handleDepartmentChange = (e) => {
+    const selectedDepartment = e.target.value;
+    const employeesForDepartment = getEmployeesByDepartment(selectedDepartment);
+
+    setNewEvent({
+      ...newEvent,
+      Department: selectedDepartment,
+      Employee: '', // Reset selected employee when the department changes
+    });
+
+    clearValidationErrors('department');
+    clearValidationErrors('employee'); // Clear validation error for employee
+
+    // Update the options for the Employee dropdown
+    setEmployeeOptions(employeesForDepartment);
+  };
+
+  // Assuming you have state for employeeOptions
+  const [employeeOptions, setEmployeeOptions] = useState([]);
 
   //Close all modals--------------------------------------------------------------
   const closeModal = () => {
@@ -335,7 +363,7 @@ const Homepage = () => {
     setAddHours(event.Hrs);
     setAddProjectName(event.Project_Name);
     setTableModalIsOpen(true);
-    
+
   };
 
   useEffect(() => {
@@ -454,9 +482,11 @@ const Homepage = () => {
     try {
       await axios.delete(
         'http://localhost:8000/delete/assign',
-        { Projectoject:project,
+        {
+          Projectoject: project,
           To_Time: endTime,
-          From_Time: startTime, } // Send parameters in the request body
+          From_Time: startTime,
+        } // Send parameters in the request body
       );
 
       fetchData();
@@ -538,6 +568,20 @@ const Homepage = () => {
       To_Time: e.target.value.trim() ? "" : "To Time is required",
     }));
   };
+
+
+
+
+
+
+  const uniqueOptions = options.reduce((unique, option) => {
+    const exists = unique.some((u) => u.department === option.department);
+    if (!exists) {
+      unique.push(option);
+    }
+    return unique;
+  }, []);
+
 
   return (
     <div className="homepage-container p-0 max-vh-100 max-vw-100">
@@ -845,6 +889,7 @@ const Homepage = () => {
                           />
                         </div>
                       </div>
+
                       <div className="row">
                         <div className="col-6">
                           <select
@@ -853,44 +898,57 @@ const Homepage = () => {
                             variant="outlined"
                             className="textfield"
                             style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
-                            value={newEvent.Employee}
-                            onChange={(e)=>{
-                              setNewEvent({ ...newEvent, Employee: e.target.value });
-                              clearValidationErrors('employee'); // Clear validation error for employee
-                              appendToTextArea(e.target.value); // Append selected option to textarea
+                            value={""}
+                            onChange={(e) => {
+                              const selectedName = e.target.value;
+
+                              if (!newEvent.Employee.includes(selectedName)) {
+                                setNewEvent((prevEvent) => ({
+                                  ...prevEvent,
+                                  Employee: [...prevEvent.Employee, selectedName],
+                                }));
+
+                                appendToTextArea(selectedName);
+                              }
                             }}
                             error={!!assignmentValidationErrors.employee}
                             required
                           >
-                            <option value="">Name*</option>
-                            {options.map((option) => (
+                            <option value="" disabled>
+                              Select Name
+                            </option>
+                            {employeeOptions.map((option) => (
                               <option key={option.id} value={option.value}>
                                 {option.name}
                               </option>
                             ))}
                           </select>
+
                         </div>
+
                         <div className="col-6">
-                          <TextField
+                          <select
                             id="department"
                             className="textfield"
                             label="Department"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%", }}
                             value={newEvent.Department}
-                            onChange={(e) => {
-                              setNewEvent({
-                                ...newEvent,
-                                Department: e.target.value,
-                              });
-                              clearValidationErrors('department'); // Clear validation error for department
-                            }}
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
+                            onChange={handleDepartmentChange}
                             error={!!assignmentValidationErrors.department}
                             helperText={assignmentValidationErrors.department}
                             required
-                          />
+                          >
+                            <option value="">Department*</option>
+                            {uniqueOptions.map((option) => (
+                              <option key={option.id} value={option.value}>
+                                {option.department}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                       </div>
+
                       <div className="row">
                         <div className="col-12">
                           <textarea
@@ -899,11 +957,22 @@ const Homepage = () => {
                             label="textareaassign"
                             variant="outlined"
                             style={{ paddingBottom: 30, width: "100%", marginBottom: 20 }}
+                            onChange={(e) => {
+                              // Split the textarea value into an array of names
+                              const namesFromTextarea = e.target.value.split('\n').filter(Employee => Employee.trim() !== '');
+
+                              // Update the state with the names from the textarea
+                              setNewEvent({ ...newEvent, Employee: namesFromTextarea });
+
+                              // Update the textarea content
+                              updateTextArea(namesFromTextarea);
+                            }}
                             required
                             readOnly
                           />
                         </div>
                       </div>
+
                       <button
                         className="modalBtn"
                         onClick={createAssignment}
