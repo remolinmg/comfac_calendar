@@ -7,6 +7,6 @@ const router = express.Router();
 router.post('/add/assign', eventController.addAssignment);
 router.get('/get/assignpeople', eventController.getAssignmentPeople);
 router.put('/update/assign/:id', eventController.updateAssignment);
-router.delete('/delete/assign/:id',eventController.deleteAssignment);
+router.delete('/delete/assign/',eventController.deleteAssignment);
 
 module.exports = router;

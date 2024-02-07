@@ -7,6 +7,6 @@ const router = express.Router();
 router.post('/add/project', projectController.addProject);
 router.get('/get/project', projectController.getProject);
 // router.put('/update/assign/:id', eventController.updateAssignment);
-// router.delete('/delete/assign/:id',eventController.deleteAssignment);
+router.delete('/delete/project/:id',projectController.deleteProject);
 
 module.exports = router;
