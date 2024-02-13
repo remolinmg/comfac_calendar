@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import "../assets/css/login.css";
+import "../assets/css/signup.css";
 import bg1 from "../assets/images/bg1.jpg";
 import logo from "../assets/images/logo.png";
 import axios from "axios";
@@ -50,10 +50,10 @@ function Signup() {
   return (
     <>
       <div className="maincontainer">
-        <div className="row">
-          <div className="col-6">
-            <div className="left">
-              <div className="containerleft border ">
+        <div className="row h-100">
+          <div className="col-6 vh-100">
+            <div className="left h-100">
+              <div className="containerleft border h-75 ">
                 <div className="text-center mt-1">
                   <h1 className="text-success">SIGN UP</h1>
                   <p>Create an account</p>
@@ -205,10 +205,10 @@ function Signup() {
             </div>
           </div>
 
-          <div className="col-6">
-            <div className="right">
-              <div className="containerright border">
-                <img src={bg1} alt="sampleimg" />
+          <div className="col-6 vh-100">
+            <div className="right h-100">
+              <div className="containerright border h-75">
+                {/* <img src={bg1} alt="sampleimg" /> */}
 
                 <div className="signup-button d-flex flex-column align-items-center">
                   <img
