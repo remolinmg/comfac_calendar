@@ -2,9 +2,14 @@ const Event = require('../model/eventsModel');
 
 // Controller to handle adding an assignment
 const addAssignment = async (req, res) => {
+  const newEvent = req.body;
   try {
-    const newEvent = req.body;
+    const check = await Event.findOne({ $and: [{ Project: newEvent.Project }, { Employee: newEvent.Employee }, { From_Time: newEvent.From_Time }, {To_Time: newEvent.To_Time}] })
 
+    if(check){
+      res.status(201).json({ success: true, createdEvent });
+    }
+    else{
     const employeeData = Array.isArray(newEvent.Employee)
       ? newEvent.Employee.map(employee => ({
           ID: newEvent.ID,
@@ -38,7 +43,8 @@ const addAssignment = async (req, res) => {
     const createdEvent = await Event.insertMany(employeeData);
 
     res.status(201).json({ success: true, createdEvent });
-  } catch (error) {
+  }
+ } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
