@@ -70,6 +70,17 @@
     color: white;
 }
 
+.modalBtnExt {
+    border: none;
+    height: 40px;
+}
+
+.modalBtnExt:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+
 .modalBtndelete {
     border: none;
     height: 40px;

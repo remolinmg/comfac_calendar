@@ -14,9 +14,9 @@ const Homepage = () => {
   const [events, setEvents] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [projectModalIsOpen, setProjectModalIsOpen] = useState(false);
+  const [duplicateModalIsOpen, setDuplicateModalIsOpen] = useState(false);
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const [tableModalIsOpen, setTableModalIsOpen] = useState(false);
-  const [eventModalIsOpen, setEventModalIsOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({});
   const [selectedRowData, setSelectedRowData] = useState("");
   const [selectedProject, setSelectedProject] = useState("");
@@ -26,11 +26,13 @@ const Homepage = () => {
   const localizer = momentLocalizer(moment);
   const [data, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [addHours, setAddHours] = useState("");
-  const [addProjectName, setAddProjectName] = useState("");
+  const [addHours, setAddHours] = useState('')
+  const [addProjectName, setAddProjectName] = useState('')
+
 
   //set option in selectfield in name field
   const [options, setOptions] = useState([]);
+
 
   //Display Project Name in the Calendar
   const CustomEvent = ({ event }) => (
@@ -38,6 +40,7 @@ const Homepage = () => {
       <strong> {event.Project}</strong>
     </div>
   );
+
 
   //Project Modal----------------------------------------------
 
@@ -68,13 +71,7 @@ const Homepage = () => {
   // Function to validate form data
   const validateForm = () => {
     const errors = {};
-    const {
-      Project = "",
-      Project_Name = "",
-      From_Time = "",
-      To_Time = "",
-      Hrs = "",
-    } = newEvent;
+    const { Project = '', Project_Name = '', From_Time = '', To_Time = '', Hrs = '' } = newEvent;
 
     // Check if any required field is empty
     if (!Project.trim()) {
@@ -119,6 +116,8 @@ const Homepage = () => {
     return Object.keys(errors).every((key) => !errors[key]);
   };
 
+
+
   const next = () => {
     const isValid = validateForm(); // Validate the form
     if (isValid) {
@@ -128,7 +127,17 @@ const Homepage = () => {
     }
   };
 
+  // Duplicate Project Modal-----------------------------------------------------
+  const openDuplicateModal = () => {
+    setDuplicateModalIsOpen(true);
+  };
+
+  const closeDuplicateModal = () => {
+    setDuplicateModalIsOpen(false);
+  };
+
   // Asssign Modal-----------------------------------------------------
+
 
   const [assignmentValidationErrors, setAssignmentValidationErrors] = useState(
     {}
@@ -175,23 +184,16 @@ const Homepage = () => {
   const validateAssignmentForm = () => {
     const errors = {};
 
+
     // Check if Department is defined and is a non-empty string
-    if (
-      !newEvent.Department ||
-      typeof newEvent.Department !== "string" ||
-      !newEvent.Department.trim()
-    ) {
+    if (!newEvent.Department || typeof newEvent.Department !== 'string' || !newEvent.Department.trim()) {
       errors.department = "Department is required";
     } else {
       errors.department = ""; // Clear the error message if the field is not empty
     }
 
     // Check if Company is defined and is a non-empty string
-    if (
-      !newEvent.Company ||
-      typeof newEvent.Company !== "string" ||
-      !newEvent.Company.trim()
-    ) {
+    if (!newEvent.Company || typeof newEvent.Company !== 'string' || !newEvent.Company.trim()) {
       errors.company = "Company is required";
     } else {
       errors.company = ""; // Clear the error message if the field is not empty
@@ -202,6 +204,7 @@ const Homepage = () => {
     // Return true if there are no errors
     return Object.values(errors).every((error) => !error);
   };
+
 
   // Update the createAssignment function to include validation check
 
@@ -238,64 +241,24 @@ const Homepage = () => {
 
         // Clear validation errors
         setAssignmentValidationErrors({});
-      } 
-      else if(response.status === 400){
-        alert("Employee already assigned to a project");
-      }
-      else {
+      } else {
         alert("Assignment failed");
       }
     } catch (error) {
-      alert("Error! Check if the Employee is available");
+      alert("Error");
     }
   };
 
   const clearValidationErrors = (field) => {
     setAssignmentValidationErrors((prevErrors) => ({
       ...prevErrors,
-      [field]: "", // Clear the error message for the specified field
+      [field]: '', // Clear the error message for the specified field
     }));
   };
 
-  // Function to get employees based on the selected department
-  const getEmployeesByDepartment = (selectedDepartment) => {
-    return options.filter((option) => option.department === selectedDepartment);
-  };
-
-  // Inside your component
-  const handleDepartmentChange = (e) => {
-    const selectedDepartment = e.target.value;
-    const employeesForDepartment = getEmployeesByDepartment(selectedDepartment);
-
-    setNewEvent({
-      ...newEvent,
-      Department: selectedDepartment,
-      Employee: "", // Reset selected employee when the department changes
-    });
-
-    clearValidationErrors("department");
-    clearValidationErrors("employee"); // Clear validation error for employee
-
-    // Update the options for the Employee dropdown
-    setEmployeeOptions(employeesForDepartment);
-  };
-
-  // Assuming you have state for employeeOptions
-  const [employeeOptions, setEmployeeOptions] = useState([]);
-
-  // Dropdown of department option in Add Assign
-  const uniqueOptions = options.reduce((unique, option) => {
-    const exists = unique.some((u) => u.department === option.department);
-    if (!exists) {
-      unique.push(option);
-    }
-    return unique;
-  }, []);
 
   // text area assign employee-----------
   const [selectedNames, setSelectedNames] = useState([]);
-  const [assignedNames, setAssignedNames] = useState([]);
-
   const textAreaRef = useRef(null);
   const appendToTextArea = (value) => {
     textAreaRef.current.value += `${value}\n`; // Append selected option to textarea with a newline
@@ -313,23 +276,61 @@ const Homepage = () => {
   };
 
   const updateTextArea = () => {
-    textAreaRef.current.value = selectedNames.join("\n"); // Update textarea content
+    textAreaRef.current.value = selectedNames.join('\n'); // Update textarea content
   };
+
+
+  //--------------------------------------------------------------
+
+  // Function to get employees based on the selected department
+  const getEmployeesByDepartment = (selectedDepartment) => {
+    return options.filter((option) => option.department === selectedDepartment);
+  };
+
+  // Inside your component
+  const handleDepartmentChange = (e) => {
+    const selectedDepartment = e.target.value;
+    const employeesForDepartment = getEmployeesByDepartment(selectedDepartment);
+
+    setNewEvent({
+      ...newEvent,
+      Department: selectedDepartment,
+      Employee: '', // Reset selected employee when the department changes
+    });
+
+    clearValidationErrors('department');
+    clearValidationErrors('employee'); // Clear validation error for employee
+
+    // Update the options for the Employee dropdown
+    setEmployeeOptions(employeesForDepartment);
+  };
+
+  // Assuming you have state for employeeOptions
+  const [employeeOptions, setEmployeeOptions] = useState([]);
+
+  // Dropdown of department option in Add Assign
+  const uniqueOptions = options.reduce((unique, option) => {
+    const exists = unique.some((u) => u.department === option.department);
+    if (!exists) {
+      unique.push(option);
+    }
+    return unique;
+  }, []);
+
+
 
   //Close all modals--------------------------------------------------------------
   const closeModal = () => {
     setModalIsOpen(false);
     setTableModalIsOpen(false);
     setProjectModalIsOpen(false);
-    setEventModalIsOpen(false);
+
     setNewEvent({});
     refreshPage();
   };
 
   //get data from database
-
-  // DATA ------------------------------------------------------------------------
-
+  // DATA ---------------------------------------------------------------
   useEffect(() => {
     fetchData();
     // Fetch initial data when the component mounts
@@ -400,55 +401,14 @@ const Homepage = () => {
   }
 
   // Search Function----------------------------------------------------------------------------
-  const [searchEvent, setSearchEvent] = useState("");
-  const [foundEventDate, setFoundEventDate] = useState([]);
+
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const handleSearch = () => {
-    const foundEvent = events.find(
-      (event) =>
-        event.name.toLowerCase().includes(searchEvent.toLowerCase()) ||
-        event.department.toLowerCase().includes(searchEvent.toLowerCase()) ||
-        event.project.toLowerCase().includes(searchEvent.toLowerCase())
-    );
-
-    if (foundEvent) {
-      const foundEventDate = moment(foundEvent.start).toDate();
-      setCurrentDate(foundEventDate);
-      console.log(foundEvent);
-    }
-  };
-
-  const navigateToDate = (date) => {
-    // Use onNavigate to set the new date
-    onNavigate("day", date);
-  };
-
-  const onNavigate = (view, newDate) => {
-    console.log("Navigated to:", view, newDate);
-    // Handle navigation logic here
-    // You might want to update the events based on the new date
-  };
-
-  const handleNavigate = (newDate, view, action) => {
-    // Check if the new date is December 30, 2023
-    const isDecember30_2023 =
-      moment(newDate).month() === 11 &&
-      moment(newDate).date() === 30 &&
-      moment(newDate).year() === 2023;
-
-    if (isDecember30_2023) {
-      console.log("Navigating to December 30, 2023:", newDate);
-
-      // setCurrentDate(newDate);
-    }
-
-    // Perform any other navigation logic as needed
-  };
 
   // Table modal -------------------
 
   // Function to handle click on table row and open edit modal
+
 
   //Edit Modal----------------------------------------------------------------------------------------
   const handleRowClick = (event) => {
@@ -463,6 +423,7 @@ const Homepage = () => {
       Hrs: event.Hrs,
     });
     setEditModalIsOpen(true);
+
   };
 
   const updateRowData = async (id) => {
@@ -484,17 +445,17 @@ const Homepage = () => {
   const deleteRow = async () => {
     try {
       await axios.delete(
-        "http://localhost:8000/delete/assign",
+        'http://localhost:8000/delete/assign',
         {
           Project: project,
           To_Time: endTime,
           From_Time: startTime,
-          selectedRowData,
+          selectedRowData
         } // Send parameters in the request body
       );
 
       fetchEmployeeData();
-      alert("Deleted Successfully");
+      alert('Deleted Successfully');
     } catch (error) {
       console.error(error);
       // Handle errors as needed
@@ -517,6 +478,9 @@ const Homepage = () => {
       console.error(error);
     }
   };
+
+
+
 
   useEffect(() => {
     // Fetch data from the database or API endpoint
@@ -568,6 +532,7 @@ const Homepage = () => {
     }));
   };
 
+
   return (
     <div className="homepage-container p-0 max-vh-100 max-vw-100">
       <NavBar />
@@ -579,6 +544,7 @@ const Homepage = () => {
           <div className="col-10 p-0 vh-100">
             <div className="calendar-container">
               <div className="calendar-card">
+
                 <div className="calendar">
                   <Calendar
                     localizer={localizer}
@@ -774,12 +740,221 @@ const Homepage = () => {
                         Assign
                       </button>
                       <button
-                        className="modalBtn"
+                        className="modalBtndelete"
                         onClick={closeModal}
                         style={{ marginBottom: 15 }}
                       >
                         Cancel
                       </button>
+                      <button
+                        className="modalBtnExt"
+                        onClick={openDuplicateModal}
+                        style={{ marginBottom: 15 }}
+                      >
+                        Duplicate Project
+                      </button>
+                    </div>
+                  </Modal>
+
+                  {/* Duplicate Project modal */}
+                  <Modal
+                    isOpen={duplicateModalIsOpen}
+                    onRequestClose={closeDuplicateModal}
+                    contentLabel="Assign People"
+                    style={{
+                      overlay: {
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        zIndex: 500,
+                      },
+                      content: {
+                        position: "absolute",
+                        top: "52%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "800px",
+                        padding: "20px",
+                        backgroundColor: "white",
+                        height: "80%",
+                      },
+                    }}
+                  >
+                    <div className="assign-form d-flex flex-column justify-content-center popup-form">
+                      <div className="d-flex justify-content-between ">
+                        <div className="text-primary">
+                          <h2>Duplicate Project</h2>
+                        </div>
+                        <div>
+                          <button
+                            type="button"
+                            onClick={closeModal}
+                            className="btn btn-outline-danger m-1 mt-0"
+                          >
+                            X
+                          </button>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-12">
+                          <select
+                            id="ExtPorject"
+                            className="textfield"
+                            label="ExtPorject"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%", height: "55px" }}
+                            required
+                          >
+                            <option value="">Projects*</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-12">
+                          <TextField
+                            id="date"
+                            className="textfield"
+                            label="Date"
+                            variant="outlined"
+                            value={moment(newEvent.start).format("LL")}
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            onChange={(e) =>
+                              setNewEvent({
+                                ...newEvent,
+                                start: e.target.value,
+                              })
+                            }
+                            readOnly
+                          />
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-12">
+                          <TextField
+                            id="project"
+                            className="textfield"
+                            label="Project"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            value={newEvent.Project}
+                            onChange={(e) => {
+                              setNewEvent((prevState) => ({
+                                ...prevState,
+                                Project: e.target.value,
+                              }));
+                              setValidationErrors((prevErrors) => ({
+                                ...prevErrors,
+                                project: e.target.value.trim()
+                                  ? ""
+                                  : "Project is required",
+                              }));
+                            }}
+                            error={!!validationErrors.project}
+                            helperText={validationErrors.project}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-12">
+                          <TextField
+                            id="projectname"
+                            className="textfield"
+                            label="Project Name"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            value={newEvent.Project_Name}
+                            onChange={(e) => {
+                              setNewEvent((prevState) => ({
+                                ...prevState,
+                                Project_Name: e.target.value,
+                              }));
+                              setValidationErrors((prevErrors) => ({
+                                ...prevErrors,
+                                projectName: e.target.value.trim()
+                                  ? ""
+                                  : "Project Name is required",
+                              }));
+                            }}
+                            error={!!validationErrors.projectName}
+                            helperText={validationErrors.projectName}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-4">
+                          <TextField
+                            type="time"
+                            id="fromtime"
+                            className="textfield"
+                            label="From Time"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            onChange={fromTimeFormatter}
+                            error={!!validationErrors.fromTime}
+                            helperText={validationErrors.fromTime}
+                            required
+                          />
+                        </div>
+                        <div className="col-4">
+                          <TextField
+                            type="time"
+                            id="totime"
+                            className="textfield"
+                            label="To Time"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            onChange={toTimeFormatter}
+                            error={!!validationErrors.toTime}
+                            helperText={validationErrors.toTime}
+                            required
+                          />
+                        </div>
+                        <div className="col-4">
+                          <TextField
+                            id="hours"
+                            label="Hours"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            value={newEvent.Hrs}
+                            onChange={(e) => {
+                              setNewEvent((prevState) => ({
+                                ...prevState,
+                                Hrs: e.target.value,
+                              }));
+                              setValidationErrors((prevErrors) => ({
+                                ...prevErrors,
+                                hours: e.target.value.trim()
+                                  ? ""
+                                  : "Hours is required",
+                              }));
+                            }}
+                            error={!!validationErrors.hours}
+                            helperText={validationErrors.hours}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <button
+                        className="modalBtnExt"
+                        onClick={next}
+                        style={{ marginBottom: 15 }}
+                      >
+                        Duplicate
+                      </button>
+                      <button
+                        className="modalBtndelete"
+                        onClick={closeDuplicateModal}
+                        style={{ marginBottom: 15 }}
+                      >
+                        Return
+                      </button>
+
                     </div>
                   </Modal>
 
@@ -848,7 +1023,7 @@ const Homepage = () => {
                                 ...newEvent,
                                 Company: e.target.value,
                               });
-                              clearValidationErrors("company"); // Clear validation error for company
+                              clearValidationErrors('company'); // Clear validation error for company
                             }}
                             error={!!assignmentValidationErrors.company}
                             helperText={assignmentValidationErrors.company}
@@ -864,12 +1039,7 @@ const Homepage = () => {
                             label="Name"
                             variant="outlined"
                             className="textfield"
-                            style={{
-                              paddingBottom: 15,
-                              width: "100%",
-                              height: "55px",
-                              margin: "0",
-                            }}
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
                             value={""}
                             onChange={(e) => {
                               const selectedName = e.target.value;
@@ -877,10 +1047,7 @@ const Homepage = () => {
                               if (!newEvent.Employee.includes(selectedName)) {
                                 setNewEvent((prevEvent) => ({
                                   ...prevEvent,
-                                  Employee: [
-                                    ...prevEvent.Employee,
-                                    selectedName,
-                                  ],
+                                  Employee: [...prevEvent.Employee, selectedName],
                                 }));
 
                                 appendToTextArea(selectedName);
@@ -898,6 +1065,7 @@ const Homepage = () => {
                               </option>
                             ))}
                           </select>
+
                         </div>
 
                         <div className="col-6">
@@ -907,12 +1075,7 @@ const Homepage = () => {
                             label="Department"
                             variant="outlined"
                             value={newEvent.Department}
-                            style={{
-                              paddingBottom: 15,
-                              width: "100%",
-                              height: "55px",
-                              margin: "0",
-                            }}
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
                             onChange={handleDepartmentChange}
                             error={!!assignmentValidationErrors.department}
                             helperText={assignmentValidationErrors.department}
@@ -935,24 +1098,13 @@ const Homepage = () => {
                             id="textareaassign"
                             label="textareaassign"
                             variant="outlined"
-                            style={{
-                              paddingBottom: 30,
-                              width: "100%",
-                              marginBottom: "20%",
-                              marginTop: 20,
-                              height: "80%",
-                            }}
+                            style={{ paddingBottom: 30, width: "100%", marginBottom: "20%", marginTop: 20, height: "80%" }}
                             onChange={(e) => {
                               // Split the textarea value into an array of names
-                              const namesFromTextarea = e.target.value
-                                .split("\n")
-                                .filter((Employee) => Employee.trim() !== "");
+                              const namesFromTextarea = e.target.value.split('\n').filter(Employee => Employee.trim() !== '');
 
                               // Update the state with the names from the textarea
-                              setNewEvent({
-                                ...newEvent,
-                                Employee: namesFromTextarea,
-                              });
+                              setNewEvent({ ...newEvent, Employee: namesFromTextarea });
 
                               // Update the textarea content
                               updateTextArea(namesFromTextarea);
@@ -971,13 +1123,10 @@ const Homepage = () => {
                           Assign
                         </button>
                         <button
-                          className="modalBtn"
+                          className="modalBtndelete"
                           onClick={() => {
                             closeModal(); // Close the "Assign People" modal
-                            openProjectModal({
-                              start: selectedDate,
-                              end: selectedDate,
-                            }); // Open the "Create Project" modal with appropriate parameters
+
                           }}
                           style={{ marginBottom: 15 }}
                         >
@@ -1028,6 +1177,7 @@ const Homepage = () => {
                         </button>
 
                         <button
+
                           type="button"
                           onClick={closeModal}
                           className="btn btn-outline-danger m-1 mt-0"
@@ -1067,11 +1217,7 @@ const Homepage = () => {
                         </tbody>
                       </table>
                     </div>
-                    <button
-                      type="button"
-                      class="btn btn-danger float-xl-end mt-2"
-                      onClick={deleteProject}
-                    >
+                    <button type="button" class="btn btn-danger float-xl-end mt-2" onClick={deleteProject}>
                       Delete Project
                     </button>
                   </Modal>
@@ -1104,7 +1250,18 @@ const Homepage = () => {
                     }}
                   >
                     <div className="assign-form d-flex flex-column justify-content-center popup-form">
-                      <h2>Edit Assign People</h2>
+                      <div className="d-flex justify-content-between ">
+                        <div className="text-success">
+                          <h2>Edit Assign People</h2>
+                        </div>
+                        <div>
+                          <button
+                           className="btn btn-outline-danger m-1 mt-0"
+                            onClick={() => setEditModalIsOpen(false)} >
+                            X
+                          </button>
+                        </div>
+                      </div>
                       <div class="mb-3 form-check">
                         <input
                           type="checkbox"
@@ -1157,12 +1314,7 @@ const Homepage = () => {
                             label="Name"
                             variant="outlined"
                             className="textfield"
-                            style={{
-                              paddingBottom: 15,
-                              width: "100%",
-                              height: "55px",
-                              margin: "0",
-                            }}
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
                             value={newEvent.Employee}
                             error={!!assignmentValidationErrors.employee}
                             required
@@ -1176,12 +1328,13 @@ const Homepage = () => {
                             <option value="" disabled>
                               Select Name
                             </option>
-                            {options.map((option) => (
+                            {employeeOptions.map((option) => (
                               <option key={option.id} value={option.value}>
                                 {option.name}
                               </option>
                             ))}
                           </select>
+
                         </div>
 
                         <div className="col-6">
@@ -1191,12 +1344,7 @@ const Homepage = () => {
                             label="Department"
                             variant="outlined"
                             value={newEvent.Department}
-                            style={{
-                              paddingBottom: 15,
-                              width: "100%",
-                              height: "55px",
-                              margin: "0",
-                            }}
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
                             onChange={handleDepartmentChange}
                             error={!!assignmentValidationErrors.department}
                             helperText={assignmentValidationErrors.department}
@@ -1269,7 +1417,7 @@ const Homepage = () => {
                         onClick={updateRowData}
                         style={{ marginBottom: 15 }}
                       >
-                        Edit
+                        Save
                       </button>
                       <button
                         className="modalBtndelete "
@@ -1278,13 +1426,7 @@ const Homepage = () => {
                       >
                         Delete
                       </button>
-                      <button
-                        className="modalBtn "
-                        onClick={() => setEditModalIsOpen(false)} // Close only the Edit Modal
-                        style={{ marginBottom: 15 }}
-                      >
-                        Back
-                      </button>
+                   
                     </div>
                   </Modal>
                 </div>
