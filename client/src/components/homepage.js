@@ -1334,7 +1334,7 @@ const Homepage = () => {
                             <option value="" disabled>
                               Select Name
                             </option>
-                            {employeeOptions.map((option) => (
+                            {options.map((option) => (
                               <option key={option.id} value={option.value}>
                                 {option.name}
                               </option>
