@@ -604,7 +604,19 @@ const Homepage = () => {
                     }}
                   >
                     <div className="assign-form d-flex flex-column justify-content-center popup-form">
-                      <h2 className="text-success">Create Project</h2>
+                     
+                      <div className="d-flex justify-content-between ">
+                        <div className="text-success">
+                        <h2>Create Project</h2>
+                        </div>
+                        <div>
+                          <button
+                           className="btn btn-outline-danger m-1 mt-0"
+                           onClick={closeModal} >
+                            X
+                          </button>
+                        </div>
+                      </div>
                       <div className="row">
                         <div className="col-12">
                           <TextField
@@ -739,13 +751,7 @@ const Homepage = () => {
                       >
                         Assign
                       </button>
-                      <button
-                        className="modalBtndelete"
-                        onClick={closeModal}
-                        style={{ marginBottom: 15 }}
-                      >
-                        Cancel
-                      </button>
+                    
                       <button
                         className="modalBtnExt"
                         onClick={openDuplicateModal}
@@ -1328,7 +1334,7 @@ const Homepage = () => {
                             <option value="" disabled>
                               Select Name
                             </option>
-                            {employeeOptions.map((option) => (
+                            {options.map((option) => (
                               <option key={option.id} value={option.value}>
                                 {option.name}
                               </option>
