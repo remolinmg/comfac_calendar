@@ -238,11 +238,15 @@ const Homepage = () => {
 
         // Clear validation errors
         setAssignmentValidationErrors({});
-      } else {
+      } 
+      else if(response.status === 400){
+        alert("Employee already assigned to a project");
+      }
+      else {
         alert("Assignment failed");
       }
     } catch (error) {
-      alert("Error");
+      alert("Error! Check if the Employee is available");
     }
   };
 
@@ -1172,7 +1176,7 @@ const Homepage = () => {
                             <option value="" disabled>
                               Select Name
                             </option>
-                            {employeeOptions.map((option) => (
+                            {options.map((option) => (
                               <option key={option.id} value={option.value}>
                                 {option.name}
                               </option>
