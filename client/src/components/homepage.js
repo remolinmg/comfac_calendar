@@ -604,15 +604,15 @@ const Homepage = () => {
                     }}
                   >
                     <div className="assign-form d-flex flex-column justify-content-center popup-form">
-                     
+
                       <div className="d-flex justify-content-between ">
                         <div className="text-success">
-                        <h2>Create Project</h2>
+                          <h2>Create Project</h2>
                         </div>
                         <div>
                           <button
-                           className="btn btn-outline-danger m-1 mt-0"
-                           onClick={closeModal} >
+                            className="btn btn-outline-danger m-1 mt-0"
+                            onClick={closeModal} >
                             X
                           </button>
                         </div>
@@ -751,7 +751,7 @@ const Homepage = () => {
                       >
                         Assign
                       </button>
-                    
+
                       <button
                         className="modalBtnExt"
                         onClick={openDuplicateModal}
@@ -762,7 +762,7 @@ const Homepage = () => {
                     </div>
                   </Modal>
 
-                  {/* Duplicate Project modal */}
+                  {/* Duplicate Assign Employee modal */}
                   <Modal
                     isOpen={duplicateModalIsOpen}
                     onRequestClose={closeDuplicateModal}
@@ -789,7 +789,7 @@ const Homepage = () => {
                       },
                     }}
                   >
-                    <div className="assign-form d-flex flex-column justify-content-center popup-form">
+                    <div className="assign-form d-flex flex-column justify-cfontent-center popup-form">
                       <div className="d-flex justify-content-between ">
                         <div className="text-primary">
                           <h2>Duplicate Project</h2>
@@ -818,6 +818,7 @@ const Homepage = () => {
                           </select>
                         </div>
                       </div>
+
                       <div className="row">
                         <div className="col-12">
                           <TextField
@@ -825,19 +826,12 @@ const Homepage = () => {
                             className="textfield"
                             label="Date"
                             variant="outlined"
-                            value={moment(newEvent.start).format("LL")}
+                            value={format(selectedDate, "MMMM dd, yyyy")}
                             style={{ paddingBottom: 15, width: "100%" }}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
-                                start: e.target.value,
-                              })
-                            }
                             readOnly
                           />
                         </div>
                       </div>
-
                       <div className="row">
                         <div className="col-12">
                           <TextField
@@ -865,102 +859,108 @@ const Homepage = () => {
                           />
                         </div>
                       </div>
+
+                      <div className="row ">
+                        <div className="col-6">
+                          <select
+                            id="name"
+                            label="Name"
+                            variant="outlined"
+                            className="textfield"
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
+                            value={""}
+                            onChange={(e) => {
+                              const selectedName = e.target.value;
+
+                              if (!newEvent.Employee.includes(selectedName)) {
+                                setNewEvent((prevEvent) => ({
+                                  ...prevEvent,
+                                  Employee: [...prevEvent.Employee, selectedName],
+                                }));
+
+                                appendToTextArea(selectedName);
+                              }
+                            }}
+                            error={!!assignmentValidationErrors.employee}
+                            required
+                          >
+                            <option value="" disabled>
+                              Select Name
+                            </option>
+                            {employeeOptions.map((option) => (
+                              <option key={option.id} value={option.value}>
+                                {option.name}
+                              </option>
+                            ))}
+                          </select>
+
+                        </div>
+
+                        <div className="col-6">
+                          <select
+                            id="department"
+                            className="textfield"
+                            label="Department"
+                            variant="outlined"
+                            value={newEvent.Department}
+                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
+                            onChange={handleDepartmentChange}
+                            error={!!assignmentValidationErrors.department}
+                            helperText={assignmentValidationErrors.department}
+                            required
+                          >
+                            <option value="">Department*</option>
+                            {uniqueOptions.map((option) => (
+                              <option key={option.id} value={option.value}>
+                                {option.department}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
                       <div className="row">
                         <div className="col-12">
-                          <TextField
-                            id="projectname"
-                            className="textfield"
-                            label="Project Name"
+                          <textarea
+                            ref={textAreaRef} // Attach the ref to the textarea
+                            id="textareaassign"
+                            label="textareaassign"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.Project_Name}
+                            style={{ paddingBottom: 30, width: "100%", marginBottom: "20%", marginTop: 20, height: "80%" }}
                             onChange={(e) => {
-                              setNewEvent((prevState) => ({
-                                ...prevState,
-                                Project_Name: e.target.value,
-                              }));
-                              setValidationErrors((prevErrors) => ({
-                                ...prevErrors,
-                                projectName: e.target.value.trim()
-                                  ? ""
-                                  : "Project Name is required",
-                              }));
+                              // Split the textarea value into an array of names
+                              const namesFromTextarea = e.target.value.split('\n').filter(Employee => Employee.trim() !== '');
+
+                              // Update the state with the names from the textarea
+                              setNewEvent({ ...newEvent, Employee: namesFromTextarea });
+
+                              // Update the textarea content
+                              updateTextArea(namesFromTextarea);
                             }}
-                            error={!!validationErrors.projectName}
-                            helperText={validationErrors.projectName}
                             required
+                            readOnly
                           />
                         </div>
                       </div>
                       <div className="row">
-                        <div className="col-4">
-                          <TextField
-                            type="time"
-                            id="fromtime"
-                            className="textfield"
-                            label="From Time"
-                            variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            onChange={fromTimeFormatter}
-                            error={!!validationErrors.fromTime}
-                            helperText={validationErrors.fromTime}
-                            required
-                          />
-                        </div>
-                        <div className="col-4">
-                          <TextField
-                            type="time"
-                            id="totime"
-                            className="textfield"
-                            label="To Time"
-                            variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            onChange={toTimeFormatter}
-                            error={!!validationErrors.toTime}
-                            helperText={validationErrors.toTime}
-                            required
-                          />
-                        </div>
-                        <div className="col-4">
-                          <TextField
-                            id="hours"
-                            label="Hours"
-                            variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.Hrs}
-                            onChange={(e) => {
-                              setNewEvent((prevState) => ({
-                                ...prevState,
-                                Hrs: e.target.value,
-                              }));
-                              setValidationErrors((prevErrors) => ({
-                                ...prevErrors,
-                                hours: e.target.value.trim()
-                                  ? ""
-                                  : "Hours is required",
-                              }));
-                            }}
-                            error={!!validationErrors.hours}
-                            helperText={validationErrors.hours}
-                            required
-                          />
-                        </div>
-                      </div>
-                      <button
-                        className="modalBtnExt"
-                        onClick={next}
-                        style={{ marginBottom: 15 }}
-                      >
-                        Duplicate
-                      </button>
-                      <button
-                        className="modalBtndelete"
-                        onClick={closeDuplicateModal}
-                        style={{ marginBottom: 15 }}
-                      >
-                        Return
-                      </button>
+                        <button
+                          className="modalBtnExt"
+                          onClick={next}
+                          style={{ marginBottom: 15 }}
+                        >
+                          Duplicate
+                        </button>
+                        <button
+                          className="modalBtndelete"
+                          onClick={() => {
+                            closeModal(); // Close the "Assign People" modal
 
+                          }}
+                          style={{ marginBottom: 15 }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   </Modal>
 
@@ -993,16 +993,7 @@ const Homepage = () => {
                   >
                     <div className="assign-form d-flex flex-column justify-cfontent-center popup-form">
                       <h2>Assign People</h2>
-                      <div class="mb-3 form-check">
-                        <input
-                          type="checkbox"
-                          class="form-check-input"
-                          id="exampleCheck1"
-                        />
-                        <label class="form-check-label" for="exampleCheck1">
-                          Listed Employee
-                        </label>
-                      </div>
+
                       <div className="row">
                         <div className="col-12">
                           <TextField
@@ -1262,22 +1253,13 @@ const Homepage = () => {
                         </div>
                         <div>
                           <button
-                           className="btn btn-outline-danger m-1 mt-0"
+                            className="btn btn-outline-danger m-1 mt-0"
                             onClick={() => setEditModalIsOpen(false)} >
                             X
                           </button>
                         </div>
                       </div>
-                      <div class="mb-3 form-check">
-                        <input
-                          type="checkbox"
-                          class="form-check-input"
-                          id="exampleCheck1"
-                        />
-                        <label class="form-check-label" for="exampleCheck1">
-                          Listed Employee
-                        </label>
-                      </div>
+
                       <div className="row">
                         <div className="col-6">
                           <TextField
@@ -1432,7 +1414,7 @@ const Homepage = () => {
                       >
                         Delete
                       </button>
-                   
+
                     </div>
                   </Modal>
                 </div>
