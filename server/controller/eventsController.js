@@ -1,4 +1,5 @@
 const Event = require('../model/eventsModel');
+const mongoose = require("mongoose");
 
 // Controller to handle adding an assignment
 const addAssignment = async (req, res) => {
@@ -49,10 +50,6 @@ const addAssignment = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-
-
-
-
 
 const getAssignment = async (req,res) =>{
   try {
@@ -107,8 +104,36 @@ const getAssignmentPeople = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
-  
+
+  const duplicateAssignedPeople = async (req, res) => {
+    const newEvent = req.body;
+    const { project, startTime, endTime } = req.query;
+
+    try {
+        const data = await Event.find({ Project: project, From_Time: startTime, To_Time: endTime });
+
+        if (data && data.length > 0) {
+            // Assuming data is an array, iterate over each item
+            for (const item of data) {
+                const duplicatedData = new Event({ ...item.toObject(), _id: new mongoose.Types.ObjectId() });
+                Object.assign(duplicatedData, newEvent);
+                await duplicatedData.save();
+            }
+
+            console.log('Documents duplicated and modified successfully.');
+            res.status(201).json({ message: 'Documents duplicated and modified successfully.' });
+        } else {
+            console.log('Original documents not found.');
+            res.status(404).json({ message: 'Original documents not found.' });
+        }
+    } catch (error) {
+        console.error('Error duplicating and modifying documents:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+
 
 module.exports = {
-  addAssignment,getAssignment,updateAssignment,deleteAssignment,getAssignmentPeople
+  addAssignment,getAssignment,updateAssignment,deleteAssignment,getAssignmentPeople,duplicateAssignedPeople
 };

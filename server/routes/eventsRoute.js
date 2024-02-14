@@ -8,5 +8,6 @@ router.post('/add/assign', eventController.addAssignment);
 router.get('/get/assignpeople', eventController.getAssignmentPeople);
 router.put('/update/assign/:id', eventController.updateAssignment);
 router.delete('/delete/assign/',eventController.deleteAssignment);
+router.post('/duplicate/assign',eventController.duplicateAssignedPeople);
 
 module.exports = router;
