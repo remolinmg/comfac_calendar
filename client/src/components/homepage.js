@@ -136,6 +136,64 @@ const Homepage = () => {
     setDuplicateModalIsOpen(false);
   };
 
+  const handleOptionClick = (selectedOption) => {
+    setProject(selectedOption.Project);
+    setStartTime(selectedOption.From_Time);
+    setEndTime(selectedOption.To_Time);
+    setNewEvent({
+      ...newEvent,
+      Project: selectedOption.Project,
+      Project_Name: selectedOption.Project_Name,
+    });
+};
+
+const duplicateProject = async () =>{
+  try {
+    const response = await axios.post("http://localhost:8000/duplicate/project",newEvent,
+    {
+      params: {
+        project,
+        startTime,
+        endTime,
+      }
+    });
+
+    if (response.status === 201) {
+        console.log('Document duplicated and modified successfully.');
+    } else {
+        console.error('Error duplicating and modifying document:', response.statusText);
+    }
+} catch (error) {
+    console.error('Error duplicating and modifying document:', error.message);
+}
+};
+
+const duplicateAssigned = async () => {
+  try {
+      const response = await axios.post("http://localhost:8000/duplicate/assign", newEvent, {
+          params: {
+              project,
+              startTime,
+              endTime,
+          }
+      });
+
+      if (response.status === 201) {
+          console.log('Document duplicated and modified successfully.');
+      } else {
+          console.error('Error duplicating and modifying document:', response.statusText);
+      }
+  } catch (error) {
+      console.error('Error duplicating and modifying document:', error.message);
+  }
+};
+
+
+const duplicate = () =>{
+  duplicateProject();
+  duplicateAssigned();
+}
+
   // Asssign Modal-----------------------------------------------------
 
 
@@ -604,15 +662,15 @@ const Homepage = () => {
                     }}
                   >
                     <div className="assign-form d-flex flex-column justify-content-center popup-form">
-                     
+
                       <div className="d-flex justify-content-between ">
                         <div className="text-success">
-                        <h2>Create Project</h2>
+                          <h2>Create Project</h2>
                         </div>
                         <div>
                           <button
-                           className="btn btn-outline-danger m-1 mt-0"
-                           onClick={closeModal} >
+                            className="btn btn-outline-danger m-1 mt-0"
+                            onClick={closeModal} >
                             X
                           </button>
                         </div>
@@ -751,7 +809,7 @@ const Homepage = () => {
                       >
                         Assign
                       </button>
-                    
+
                       <button
                         className="modalBtnExt"
                         onClick={openDuplicateModal}
@@ -762,7 +820,7 @@ const Homepage = () => {
                     </div>
                   </Modal>
 
-                  {/* Duplicate Project modal */}
+                  {/* Duplicate Assign Employee modal */}
                   <Modal
                     isOpen={duplicateModalIsOpen}
                     onRequestClose={closeDuplicateModal}
@@ -789,7 +847,7 @@ const Homepage = () => {
                       },
                     }}
                   >
-                    <div className="assign-form d-flex flex-column justify-content-center popup-form">
+                    <div className="assign-form d-flex flex-column justify-cfontent-center popup-form">
                       <div className="d-flex justify-content-between ">
                         <div className="text-primary">
                           <h2>Duplicate Project</h2>
@@ -806,6 +864,19 @@ const Homepage = () => {
                       </div>
                       <div className="row">
                         <div className="col-12">
+                          <TextField
+                            id="date"
+                            className="textfield"
+                            label="Date"
+                            variant="outlined"
+                            value={format(selectedDate, "MMMM dd, yyyy")}
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-12">
                           <select
                             id="ExtPorject"
                             className="textfield"
@@ -814,82 +885,15 @@ const Homepage = () => {
                             style={{ paddingBottom: 15, width: "100%", height: "55px" }}
                             required
                           >
-                            <option value="">Projects*</option>
+                             <option value="">
+                              Select Project
+                            </option>
+                              {events.map((option) => (
+                              <option key={option.id} value={option.value} onClick={() => handleOptionClick(option)}>
+                                {option.Project} - {option.From_Time} - {option.To_Time}
+                              </option>
+                            ))}
                           </select>
-                        </div>
-                      </div>
-                      <div className="row">
-                        <div className="col-12">
-                          <TextField
-                            id="date"
-                            className="textfield"
-                            label="Date"
-                            variant="outlined"
-                            value={moment(newEvent.start).format("LL")}
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            onChange={(e) =>
-                              setNewEvent({
-                                ...newEvent,
-                                start: e.target.value,
-                              })
-                            }
-                            readOnly
-                          />
-                        </div>
-                      </div>
-
-                      <div className="row">
-                        <div className="col-12">
-                          <TextField
-                            id="project"
-                            className="textfield"
-                            label="Project"
-                            variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.Project}
-                            onChange={(e) => {
-                              setNewEvent((prevState) => ({
-                                ...prevState,
-                                Project: e.target.value,
-                              }));
-                              setValidationErrors((prevErrors) => ({
-                                ...prevErrors,
-                                project: e.target.value.trim()
-                                  ? ""
-                                  : "Project is required",
-                              }));
-                            }}
-                            error={!!validationErrors.project}
-                            helperText={validationErrors.project}
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="row">
-                        <div className="col-12">
-                          <TextField
-                            id="projectname"
-                            className="textfield"
-                            label="Project Name"
-                            variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.Project_Name}
-                            onChange={(e) => {
-                              setNewEvent((prevState) => ({
-                                ...prevState,
-                                Project_Name: e.target.value,
-                              }));
-                              setValidationErrors((prevErrors) => ({
-                                ...prevErrors,
-                                projectName: e.target.value.trim()
-                                  ? ""
-                                  : "Project Name is required",
-                              }));
-                            }}
-                            error={!!validationErrors.projectName}
-                            helperText={validationErrors.projectName}
-                            required
-                          />
                         </div>
                       </div>
                       <div className="row">
@@ -946,21 +950,25 @@ const Homepage = () => {
                           />
                         </div>
                       </div>
-                      <button
-                        className="modalBtnExt"
-                        onClick={next}
-                        style={{ marginBottom: 15 }}
-                      >
-                        Duplicate
-                      </button>
-                      <button
-                        className="modalBtndelete"
-                        onClick={closeDuplicateModal}
-                        style={{ marginBottom: 15 }}
-                      >
-                        Return
-                      </button>
+                      <div className="row">
+                        <button
+                          className="modalBtnExt"
+                          onClick={duplicate}
+                          style={{ marginBottom: 15 }}
+                        >
+                          Duplicate
+                        </button>
+                        <button
+                          className="modalBtndelete"
+                          onClick={() => {
+                            closeModal(); // Close the "Assign People" modal
 
+                          }}
+                          style={{ marginBottom: 15 }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   </Modal>
 
@@ -993,16 +1001,7 @@ const Homepage = () => {
                   >
                     <div className="assign-form d-flex flex-column justify-cfontent-center popup-form">
                       <h2>Assign People</h2>
-                      <div class="mb-3 form-check">
-                        <input
-                          type="checkbox"
-                          class="form-check-input"
-                          id="exampleCheck1"
-                        />
-                        <label class="form-check-label" for="exampleCheck1">
-                          Listed Employee
-                        </label>
-                      </div>
+
                       <div className="row">
                         <div className="col-12">
                           <TextField
@@ -1262,22 +1261,13 @@ const Homepage = () => {
                         </div>
                         <div>
                           <button
-                           className="btn btn-outline-danger m-1 mt-0"
+                            className="btn btn-outline-danger m-1 mt-0"
                             onClick={() => setEditModalIsOpen(false)} >
                             X
                           </button>
                         </div>
                       </div>
-                      <div class="mb-3 form-check">
-                        <input
-                          type="checkbox"
-                          class="form-check-input"
-                          id="exampleCheck1"
-                        />
-                        <label class="form-check-label" for="exampleCheck1">
-                          Listed Employee
-                        </label>
-                      </div>
+
                       <div className="row">
                         <div className="col-6">
                           <TextField
@@ -1432,7 +1422,7 @@ const Homepage = () => {
                       >
                         Delete
                       </button>
-                   
+
                     </div>
                   </Modal>
                 </div>
