@@ -39,7 +39,6 @@
 
 .search-icon:hover {
   background-color: #ccc;
-
 }
 
 .search-user:hover .search-icon {
@@ -58,10 +57,7 @@
   font-size: 40px;
 }
 
-
 /* Table start */
-
-
 .table-container-user {
   overflow-y: auto;
   max-height: 75vh;
@@ -109,7 +105,6 @@ td {
   text-overflow: ellipsis;
   /* Display ellipsis (...) for overflowing text */
 }
-
 
 .tbodyuser {
   max-height: calc(75vh - 40px);

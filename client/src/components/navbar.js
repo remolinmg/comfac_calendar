@@ -28,7 +28,7 @@ function NavBar() {
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="w-100 d-flex justify-content-between align-items-between">
+          <Nav className="w-100">
             <Nav.Link href="/">Calendar</Nav.Link>
             <NavDropdown
               title={
