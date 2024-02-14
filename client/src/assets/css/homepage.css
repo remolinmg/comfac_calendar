@@ -4,6 +4,7 @@
     background-position: center;
     background-repeat: no-repeat;
     height: 100vh;
+    width: 100vw;
 }
 
 .calendar-container {
@@ -29,9 +30,7 @@
     align-self: center;
     /* background-color: rgba(18, 18, 18, 0.4);
     border: 1px solid #4D4D4D; */
-
 }
-
 
 .rbc-toolbar .rbc-btn-group button {
     color: white;
@@ -57,7 +56,6 @@
 .popup-form {
     z-index: 999;
     opacity: 100;
-
 }
 
 .modalBtn {
@@ -123,7 +121,6 @@
     gap: 10px;
 }
 
-
 .table-container-employeetoday {
     max-height: 400px;
     overflow-y: auto;
@@ -140,4 +137,208 @@
     top: 0;
     background-color: white;
     z-index: 1;
+}
+
+@media only screen and (min-width: 768px) {
+    .custom-calendar {
+        position: relative !important;
+        height: 250px !important;
+        width: 500px !important;
+        color: white !important;
+        z-index: 200 !important;
+    }
+
+    /* Update the size of the toolbar buttons */
+    .custom-calendar .rbc-toolbar button {
+        font-size: 7px;
+        /* Adjust the font size */
+    }
+
+    /* Update the size of the current date display */
+    .custom-calendar .rbc-toolbar .rbc-toolbar-label {
+        font-size: 12px;
+        /* Adjust the font size */
+    }
+
+    /* Update the size of the view switcher (month, week, day, agenda) */
+    .custom-calendar .rbc-btn-group button {
+        font-size: 7px;
+        /* Adjust the font size */
+    }
+
+    /* Update the size of the date cell in the month view */
+    .custom-calendar .rbc-month-view .rbc-header+.rbc-row>* {
+        height: 20px;
+        /* Adjust the height */
+    }
+
+    /* Update the size of the time slot in the day and week views */
+    .custom-calendar .rbc-time-view .rbc-time-gutter {
+        width: 30px;
+        /* Adjust the width */
+    }
+}
+
+@media only screen and (min-width: 1024px) {
+    .custom-calendar {
+        position: relative !important;
+        height: 450px !important;
+        width: 800px !important;
+        color: white !important;
+        z-index: 200 !important;
+    }
+
+    .homepage-container {
+        background-image: url('/src/assets/images/bg.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100vh;
+        width: 100vw;
+    }
+
+    .calendar-container {
+        margin-top: 70px;
+        margin-left: 10px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        height: 85%;
+    }
+
+    .calendar-card {
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background-color: #4D4D4D;
+        height: 100%;
+        border-radius: 12px;
+    }
+
+    /* Update the size of the toolbar buttons */
+    .custom-calendar .rbc-toolbar button {
+        font-size: 14px;
+        /* Adjust the font size */
+    }
+
+    /* Update the size of the current date display */
+    .custom-calendar .rbc-toolbar .rbc-toolbar-label {
+        font-size: 16px;
+        /* Adjust the font size */
+    }
+
+    /* Update the size of the view switcher (month, week, day, agenda) */
+    .custom-calendar .rbc-btn-group button {
+        font-size: 14px;
+        /* Adjust the font size */
+    }
+
+    /* Update the size of the date cell in the month view */
+    .custom-calendar .rbc-month-view .rbc-header+.rbc-row>* {
+        height: 40px;
+        /* Adjust the height */
+    }
+
+    /* Update the size of the time slot in the day and week views */
+    .custom-calendar .rbc-time-view .rbc-time-gutter {
+        width: 60px;
+        /* Adjust the width */
+    }
+
+    .rbc-toolbar .rbc-btn-group button {
+        color: white;
+    }
+
+    .rbc-toolbar .rbc-btn-group button:hover {
+        color: white;
+        background-color: #00BA9D;
+    }
+
+    .rbc-toolbar button.rbc-active {
+        background-color: #00BA9D;
+    }
+
+    .rbc-toolbar button.rbc-toolbar-btn:active {
+        background-color: #00BA9D;
+    }
+
+    .rbc-button-link {
+        z-index: 20;
+    }
+
+    .popup-form {
+        z-index: 999;
+        opacity: 100;
+    }
+
+    .modalBtn {
+        border: none;
+        height: 40px;
+    }
+
+    .modalBtn:hover {
+        background-color: #00BA9D;
+        color: white;
+    }
+
+    .modalBtndelete {
+        border: none;
+        height: 40px;
+    }
+
+    .modalBtndelete:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .rbc-calendar {
+        height: 100%
+    }
+
+    .rbc-time-view {
+        max-height: 100%;
+        overflow-y: scroll;
+    }
+
+    .rbc-time-view {
+        .rbc-label {
+            display: none;
+        }
+
+        .rbc-allday-cell {
+            height: calc(100vh - 98px);
+            max-height: unset;
+        }
+
+        .rbc-time-content {
+            display: none;
+        }
+    }
+
+    .calendarSearchBar {
+        width: 800px;
+        display: flex;
+        text-align: center;
+        align-self: center;
+        gap: 10px;
+    }
+
+    .table-container-employeetoday {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 2px solid #000;
+    }
+
+    .tablelistemployeetoday {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .listemployeetodayhead {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 1;
+    }
+
 }
