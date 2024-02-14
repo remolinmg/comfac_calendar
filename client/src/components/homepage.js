@@ -136,6 +136,64 @@ const Homepage = () => {
     setDuplicateModalIsOpen(false);
   };
 
+  const handleOptionClick = (selectedOption) => {
+    setProject(selectedOption.Project);
+    setStartTime(selectedOption.From_Time);
+    setEndTime(selectedOption.To_Time);
+    setNewEvent({
+      ...newEvent,
+      Project: selectedOption.Project,
+      Project_Name: selectedOption.Project_Name,
+    });
+};
+
+const duplicateProject = async () =>{
+  try {
+    const response = await axios.post("http://localhost:8000/duplicate/project",newEvent,
+    {
+      params: {
+        project,
+        startTime,
+        endTime,
+      }
+    });
+
+    if (response.status === 201) {
+        console.log('Document duplicated and modified successfully.');
+    } else {
+        console.error('Error duplicating and modifying document:', response.statusText);
+    }
+} catch (error) {
+    console.error('Error duplicating and modifying document:', error.message);
+}
+};
+
+const duplicateAssigned = async () => {
+  try {
+      const response = await axios.post("http://localhost:8000/duplicate/assign", newEvent, {
+          params: {
+              project,
+              startTime,
+              endTime,
+          }
+      });
+
+      if (response.status === 201) {
+          console.log('Document duplicated and modified successfully.');
+      } else {
+          console.error('Error duplicating and modifying document:', response.statusText);
+      }
+  } catch (error) {
+      console.error('Error duplicating and modifying document:', error.message);
+  }
+};
+
+
+const duplicate = () =>{
+  duplicateProject();
+  duplicateAssigned();
+}
+
   // Asssign Modal-----------------------------------------------------
 
 
@@ -806,21 +864,6 @@ const Homepage = () => {
                       </div>
                       <div className="row">
                         <div className="col-12">
-                          <select
-                            id="ExtPorject"
-                            className="textfield"
-                            label="ExtPorject"
-                            variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%", height: "55px" }}
-                            required
-                          >
-                            <option value="">Projects*</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="row">
-                        <div className="col-12">
                           <TextField
                             id="date"
                             className="textfield"
@@ -834,118 +877,83 @@ const Homepage = () => {
                       </div>
                       <div className="row">
                         <div className="col-12">
-                          <TextField
-                            id="project"
+                          <select
+                            id="ExtPorject"
                             className="textfield"
-                            label="Project"
+                            label="ExtPorject"
+                            variant="outlined"
+                            style={{ paddingBottom: 15, width: "100%", height: "55px" }}
+                            required
+                          >
+                             <option value="">
+                              Select Project
+                            </option>
+                              {events.map((option) => (
+                              <option key={option.id} value={option.value} onClick={() => handleOptionClick(option)}>
+                                {option.Project} - {option.From_Time} - {option.To_Time}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-4">
+                          <TextField
+                            type="time"
+                            id="fromtime"
+                            className="textfield"
+                            label="From Time"
                             variant="outlined"
                             style={{ paddingBottom: 15, width: "100%" }}
-                            value={newEvent.Project}
-                            onChange={(e) => {
-                              setNewEvent((prevState) => ({
-                                ...prevState,
-                                Project: e.target.value,
-                              }));
-                              setValidationErrors((prevErrors) => ({
-                                ...prevErrors,
-                                project: e.target.value.trim()
-                                  ? ""
-                                  : "Project is required",
-                              }));
-                            }}
-                            error={!!validationErrors.project}
-                            helperText={validationErrors.project}
+                            onChange={fromTimeFormatter}
+                            error={!!validationErrors.fromTime}
+                            helperText={validationErrors.fromTime}
                             required
                           />
                         </div>
-                      </div>
-
-                      <div className="row ">
-                        <div className="col-6">
-                          <select
-                            id="name"
-                            label="Name"
-                            variant="outlined"
+                        <div className="col-4">
+                          <TextField
+                            type="time"
+                            id="totime"
                             className="textfield"
-                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
-                            value={""}
-                            onChange={(e) => {
-                              const selectedName = e.target.value;
-
-                              if (!newEvent.Employee.includes(selectedName)) {
-                                setNewEvent((prevEvent) => ({
-                                  ...prevEvent,
-                                  Employee: [...prevEvent.Employee, selectedName],
-                                }));
-
-                                appendToTextArea(selectedName);
-                              }
-                            }}
-                            error={!!assignmentValidationErrors.employee}
-                            required
-                          >
-                            <option value="" disabled>
-                              Select Name
-                            </option>
-                            {employeeOptions.map((option) => (
-                              <option key={option.id} value={option.value}>
-                                {option.name}
-                              </option>
-                            ))}
-                          </select>
-
-                        </div>
-
-                        <div className="col-6">
-                          <select
-                            id="department"
-                            className="textfield"
-                            label="Department"
+                            label="To Time"
                             variant="outlined"
-                            value={newEvent.Department}
-                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
-                            onChange={handleDepartmentChange}
-                            error={!!assignmentValidationErrors.department}
-                            helperText={assignmentValidationErrors.department}
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            onChange={toTimeFormatter}
+                            error={!!validationErrors.toTime}
+                            helperText={validationErrors.toTime}
                             required
-                          >
-                            <option value="">Department*</option>
-                            {uniqueOptions.map((option) => (
-                              <option key={option.id} value={option.value}>
-                                {option.department}
-                              </option>
-                            ))}
-                          </select>
+                          />
                         </div>
-                      </div>
-
-                      <div className="row">
-                        <div className="col-12">
-                          <textarea
-                            ref={textAreaRef} // Attach the ref to the textarea
-                            id="textareaassign"
-                            label="textareaassign"
+                        <div className="col-4">
+                          <TextField
+                            id="hours"
+                            label="Hours"
                             variant="outlined"
-                            style={{ paddingBottom: 30, width: "100%", marginBottom: "20%", marginTop: 20, height: "80%" }}
+                            style={{ paddingBottom: 15, width: "100%" }}
+                            value={newEvent.Hrs}
                             onChange={(e) => {
-                              // Split the textarea value into an array of names
-                              const namesFromTextarea = e.target.value.split('\n').filter(Employee => Employee.trim() !== '');
-
-                              // Update the state with the names from the textarea
-                              setNewEvent({ ...newEvent, Employee: namesFromTextarea });
-
-                              // Update the textarea content
-                              updateTextArea(namesFromTextarea);
+                              setNewEvent((prevState) => ({
+                                ...prevState,
+                                Hrs: e.target.value,
+                              }));
+                              setValidationErrors((prevErrors) => ({
+                                ...prevErrors,
+                                hours: e.target.value.trim()
+                                  ? ""
+                                  : "Hours is required",
+                              }));
                             }}
+                            error={!!validationErrors.hours}
+                            helperText={validationErrors.hours}
                             required
-                            readOnly
                           />
                         </div>
                       </div>
                       <div className="row">
                         <button
                           className="modalBtnExt"
-                          onClick={next}
+                          onClick={duplicate}
                           style={{ marginBottom: 15 }}
                         >
                           Duplicate

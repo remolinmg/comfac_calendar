@@ -1,4 +1,5 @@
 const Project = require('../model/projectModel');
+const mongoose = require("mongoose");
 
 // Controller to handle adding an assignments
 const addProject = async (req, res) => {
@@ -39,6 +40,33 @@ const deleteProject = async (req, res) => {
   }
 };
 
+const duplicateProject = async (req, res) => {
+  const newEvent = req.body;
+  const { project, startTime, endTime } = req.query;
+
+  try {
+      const data = await Project.find({ Project: project, From_Time: startTime, To_Time: endTime });
+
+      if (data && data.length > 0) {
+          // Assuming data is an array, iterate over each item
+          for (const item of data) {
+              const duplicatedData = new Project({ ...item.toObject(), _id: new mongoose.Types.ObjectId() });
+              Object.assign(duplicatedData, newEvent);
+              await duplicatedData.save();
+          }
+
+          console.log('Documents duplicated and modified successfully.');
+          res.status(201).json({ message: 'Documents duplicated and modified successfully.' });
+      } else {
+          console.log('Original documents not found.');
+          res.status(404).json({ message: 'Original documents not found.' });
+      }
+  } catch (error) {
+      console.error('Error duplicating and modifying documents:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 module.exports = {
-  addProject, getProject,deleteProject
+  addProject, getProject,deleteProject,duplicateProject
 };
