@@ -127,7 +127,7 @@ const Homepage = () => {
     }
   };
 
-  // Duplicate Project Modal-----------------------------------------------------
+  // Duplicate  Modal-----------------------------------------------------
   const openDuplicateModal = () => {
     setDuplicateModalIsOpen(true);
   };
@@ -145,54 +145,85 @@ const Homepage = () => {
       Project: selectedOption.Project,
       Project_Name: selectedOption.Project_Name,
     });
-};
+  };
 
-const duplicateProject = async () =>{
-  try {
-    const response = await axios.post("http://localhost:8000/duplicate/project",newEvent,
-    {
-      params: {
-        project,
-        startTime,
-        endTime,
-      }
-    });
+  // validation duplicate --------
+  const validateDuplicateForm = () => {
+    const errors = {};
+    const { From_Time = '', To_Time = '', Hrs = '' } = newEvent;
 
-    if (response.status === 201) {
-        console.log('Document duplicated and modified successfully.');
+    if (!From_Time.trim()) {
+      errors.fromTime = 'From Time is required';
     } else {
-        console.error('Error duplicating and modifying document:', response.statusText);
+      errors.fromTime = '';
     }
-} catch (error) {
-    console.error('Error duplicating and modifying document:', error.message);
-}
-};
 
-const duplicateAssigned = async () => {
-  try {
-      const response = await axios.post("http://localhost:8000/duplicate/assign", newEvent, {
+    if (!To_Time.trim()) {
+      errors.toTime = 'To Time is required';
+    } else {
+      errors.toTime = '';
+    }
+
+    if (!Hrs.trim()) {
+      errors.hours = 'Hours is required';
+    } else {
+      errors.hours = '';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).every((key) => !errors[key]);
+  };
+
+
+  const duplicateProject = async () => {
+    try {
+      const response = await axios.post("http://localhost:8000/duplicate/project", newEvent,
+        {
           params: {
-              project,
-              startTime,
-              endTime,
+            project,
+            startTime,
+            endTime,
           }
+        });
+
+      if (response.status === 201) {
+        console.log('Document duplicated and modified successfully.');
+      } else {
+        console.error('Error duplicating and modifying document:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error duplicating and modifying document:', error.message);
+    }
+  };
+
+  const duplicateAssigned = async () => {
+    try {
+      const response = await axios.post("http://localhost:8000/duplicate/assign", newEvent, {
+        params: {
+          project,
+          startTime,
+          endTime,
+        }
       });
 
       if (response.status === 201) {
-          console.log('Document duplicated and modified successfully.');
+        console.log('Document duplicated and modified successfully.');
       } else {
-          console.error('Error duplicating and modifying document:', response.statusText);
+        console.error('Error duplicating and modifying document:', response.statusText);
       }
-  } catch (error) {
+    } catch (error) {
       console.error('Error duplicating and modifying document:', error.message);
-  }
-};
+    }
+  };
 
 
-const duplicate = () =>{
-  duplicateProject();
-  duplicateAssigned();
-}
+  const duplicate = () => {
+    const isValid = validateDuplicateForm();
+    if (isValid) {
+      duplicateProject();
+      duplicateAssigned();
+    }
+  };
 
   // Asssign Modal-----------------------------------------------------
 
@@ -827,28 +858,28 @@ const duplicate = () =>{
                     contentLabel="Assign People"
                     style={{
                       overlay: {
-                        position: "fixed",
+                        position: 'fixed',
                         top: 0,
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
                         zIndex: 500,
                       },
                       content: {
-                        position: "absolute",
-                        top: "52%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: "800px",
-                        padding: "20px",
-                        backgroundColor: "white",
-                        height: "80%",
+                        position: 'absolute',
+                        top: '52%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '800px',
+                        padding: '20px',
+                        backgroundColor: 'white',
+                        height: '80%',
                       },
                     }}
                   >
-                    <div className="assign-form d-flex flex-column justify-cfontent-center popup-form">
-                      <div className="d-flex justify-content-between ">
+                    <div className="assign-form d-flex flex-column justify-content-center popup-form">
+                      <div className="d-flex justify-content-between">
                         <div className="text-primary">
                           <h2>Duplicate Project</h2>
                         </div>
@@ -869,8 +900,8 @@ const duplicate = () =>{
                             className="textfield"
                             label="Date"
                             variant="outlined"
-                            value={format(selectedDate, "MMMM dd, yyyy")}
-                            style={{ paddingBottom: 15, width: "100%" }}
+                            value={format(selectedDate, 'MMMM dd, yyyy')}
+                            style={{ paddingBottom: 15, width: '100%' }}
                             readOnly
                           />
                         </div>
@@ -882,19 +913,22 @@ const duplicate = () =>{
                             className="textfield"
                             label="ExtPorject"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%", height: "55px" }}
+                            style={{ paddingBottom: 15, width: '100%', height: '55px' }}
                             required
                           >
-                             <option value="">
-                              Select Project
-                            </option>
-                              {events.map((option) => (
-                              <option key={option.id} value={option.value} onClick={() => handleOptionClick(option)}>
+                            <option value="">Select Project</option>
+                            {events.slice().reverse().map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.value}
+                                onClick={() => handleOptionClick(option)}
+                              >
                                 {option.Project} - {option.From_Time} - {option.To_Time}
                               </option>
                             ))}
                           </select>
                         </div>
+
                       </div>
                       <div className="row">
                         <div className="col-4">
@@ -904,7 +938,7 @@ const duplicate = () =>{
                             className="textfield"
                             label="From Time"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
+                            style={{ paddingBottom: 15, width: '100%' }}
                             onChange={fromTimeFormatter}
                             error={!!validationErrors.fromTime}
                             helperText={validationErrors.fromTime}
@@ -918,7 +952,7 @@ const duplicate = () =>{
                             className="textfield"
                             label="To Time"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
+                            style={{ paddingBottom: 15, width: '100%' }}
                             onChange={toTimeFormatter}
                             error={!!validationErrors.toTime}
                             helperText={validationErrors.toTime}
@@ -930,7 +964,7 @@ const duplicate = () =>{
                             id="hours"
                             label="Hours"
                             variant="outlined"
-                            style={{ paddingBottom: 15, width: "100%" }}
+                            style={{ paddingBottom: 15, width: '100%' }}
                             value={newEvent.Hrs}
                             onChange={(e) => {
                               setNewEvent((prevState) => ({
@@ -939,9 +973,7 @@ const duplicate = () =>{
                               }));
                               setValidationErrors((prevErrors) => ({
                                 ...prevErrors,
-                                hours: e.target.value.trim()
-                                  ? ""
-                                  : "Hours is required",
+                                hours: e.target.value.trim() ? '' : 'Hours is required',
                               }));
                             }}
                             error={!!validationErrors.hours}
@@ -960,10 +992,7 @@ const duplicate = () =>{
                         </button>
                         <button
                           className="modalBtndelete"
-                          onClick={() => {
-                            closeModal(); // Close the "Assign People" modal
-
-                          }}
+                          onClick={closeDuplicateModal}
                           style={{ marginBottom: 15 }}
                         >
                           Cancel
