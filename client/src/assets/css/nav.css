@@ -18,10 +18,10 @@
     z-index: 9999;
 }
 
-#basic-navbar-nav {
+/* #basic-navbar-nav {
     display: flex;
     justify-content: space-between;
-}
+} */
 
 .navbar-section .dropdown-menu.show {
     right: 0;

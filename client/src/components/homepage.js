@@ -26,13 +26,11 @@ const Homepage = () => {
   const localizer = momentLocalizer(moment);
   const [data, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [addHours, setAddHours] = useState('')
-  const [addProjectName, setAddProjectName] = useState('')
-
+  const [addHours, setAddHours] = useState("");
+  const [addProjectName, setAddProjectName] = useState("");
 
   //set option in selectfield in name field
   const [options, setOptions] = useState([]);
-
 
   //Display Project Name in the Calendar
   const CustomEvent = ({ event }) => (
@@ -40,7 +38,6 @@ const Homepage = () => {
       <strong> {event.Project}</strong>
     </div>
   );
-
 
   //Project Modal----------------------------------------------
 
@@ -71,7 +68,13 @@ const Homepage = () => {
   // Function to validate form data
   const validateForm = () => {
     const errors = {};
-    const { Project = '', Project_Name = '', From_Time = '', To_Time = '', Hrs = '' } = newEvent;
+    const {
+      Project = "",
+      Project_Name = "",
+      From_Time = "",
+      To_Time = "",
+      Hrs = "",
+    } = newEvent;
 
     // Check if any required field is empty
     if (!Project.trim()) {
@@ -115,8 +118,6 @@ const Homepage = () => {
     // Return true if there are no errors
     return Object.keys(errors).every((key) => !errors[key]);
   };
-
-
 
   const next = () => {
     const isValid = validateForm(); // Validate the form
@@ -183,6 +184,7 @@ const Homepage = () => {
             project,
             startTime,
             endTime,
+
           }
         });
 
@@ -223,10 +225,10 @@ const Homepage = () => {
       duplicateProject();
       duplicateAssigned();
     }
+
   };
 
   // Asssign Modal-----------------------------------------------------
-
 
   const [assignmentValidationErrors, setAssignmentValidationErrors] = useState(
     {}
@@ -273,16 +275,23 @@ const Homepage = () => {
   const validateAssignmentForm = () => {
     const errors = {};
 
-
     // Check if Department is defined and is a non-empty string
-    if (!newEvent.Department || typeof newEvent.Department !== 'string' || !newEvent.Department.trim()) {
+    if (
+      !newEvent.Department ||
+      typeof newEvent.Department !== "string" ||
+      !newEvent.Department.trim()
+    ) {
       errors.department = "Department is required";
     } else {
       errors.department = ""; // Clear the error message if the field is not empty
     }
 
     // Check if Company is defined and is a non-empty string
-    if (!newEvent.Company || typeof newEvent.Company !== 'string' || !newEvent.Company.trim()) {
+    if (
+      !newEvent.Company ||
+      typeof newEvent.Company !== "string" ||
+      !newEvent.Company.trim()
+    ) {
       errors.company = "Company is required";
     } else {
       errors.company = ""; // Clear the error message if the field is not empty
@@ -293,7 +302,6 @@ const Homepage = () => {
     // Return true if there are no errors
     return Object.values(errors).every((error) => !error);
   };
-
 
   // Update the createAssignment function to include validation check
 
@@ -330,6 +338,8 @@ const Homepage = () => {
 
         // Clear validation errors
         setAssignmentValidationErrors({});
+      } else if (response.status === 400) {
+        alert("Employee already assigned to a project");
       } else {
         alert("Assignment failed");
       }
@@ -341,10 +351,9 @@ const Homepage = () => {
   const clearValidationErrors = (field) => {
     setAssignmentValidationErrors((prevErrors) => ({
       ...prevErrors,
-      [field]: '', // Clear the error message for the specified field
+      [field]: "", // Clear the error message for the specified field
     }));
   };
-
 
   // text area assign employee-----------
   const [selectedNames, setSelectedNames] = useState([]);
@@ -365,9 +374,8 @@ const Homepage = () => {
   };
 
   const updateTextArea = () => {
-    textAreaRef.current.value = selectedNames.join('\n'); // Update textarea content
+    textAreaRef.current.value = selectedNames.join("\n"); // Update textarea content
   };
-
 
   //--------------------------------------------------------------
 
@@ -384,11 +392,11 @@ const Homepage = () => {
     setNewEvent({
       ...newEvent,
       Department: selectedDepartment,
-      Employee: '', // Reset selected employee when the department changes
+      Employee: "", // Reset selected employee when the department changes
     });
 
-    clearValidationErrors('department');
-    clearValidationErrors('employee'); // Clear validation error for employee
+    clearValidationErrors("department");
+    clearValidationErrors("employee"); // Clear validation error for employee
 
     // Update the options for the Employee dropdown
     setEmployeeOptions(employeesForDepartment);
@@ -405,8 +413,6 @@ const Homepage = () => {
     }
     return unique;
   }, []);
-
-
 
   //Close all modals--------------------------------------------------------------
   const closeModal = () => {
@@ -493,11 +499,9 @@ const Homepage = () => {
 
   const [currentDate, setCurrentDate] = useState(new Date());
 
-
   // Table modal -------------------
 
   // Function to handle click on table row and open edit modal
-
 
   //Edit Modal----------------------------------------------------------------------------------------
   const handleRowClick = (event) => {
@@ -512,7 +516,6 @@ const Homepage = () => {
       Hrs: event.Hrs,
     });
     setEditModalIsOpen(true);
-
   };
 
   const updateRowData = async (id) => {
@@ -534,17 +537,17 @@ const Homepage = () => {
   const deleteRow = async () => {
     try {
       await axios.delete(
-        'http://localhost:8000/delete/assign',
+        "http://localhost:8000/delete/assign",
         {
           Project: project,
           To_Time: endTime,
           From_Time: startTime,
-          selectedRowData
+          selectedRowData,
         } // Send parameters in the request body
       );
 
       fetchEmployeeData();
-      alert('Deleted Successfully');
+      alert("Deleted Successfully");
     } catch (error) {
       console.error(error);
       // Handle errors as needed
@@ -567,9 +570,6 @@ const Homepage = () => {
       console.error(error);
     }
   };
-
-
-
 
   useEffect(() => {
     // Fetch data from the database or API endpoint
@@ -621,7 +621,6 @@ const Homepage = () => {
     }));
   };
 
-
   return (
     <div className="homepage-container p-0 max-vh-100 max-vw-100">
       <NavBar />
@@ -633,7 +632,6 @@ const Homepage = () => {
           <div className="col-10 p-0 vh-100">
             <div className="calendar-container">
               <div className="calendar-card">
-
                 <div className="calendar">
                   <Calendar
                     localizer={localizer}
@@ -653,6 +651,7 @@ const Homepage = () => {
                       zIndex: 200,
                     }}
                     selectable={true}
+                    className="custom-calendar"
                     onSelectSlot={openProjectModal}
                     dayPropGetter={(date) => {
                       if (moment(date).isSame(currentDate, "day")) {
@@ -693,7 +692,6 @@ const Homepage = () => {
                     }}
                   >
                     <div className="assign-form d-flex flex-column justify-content-center popup-form">
-
                       <div className="d-flex justify-content-between ">
                         <div className="text-success">
                           <h2>Create Project</h2>
@@ -701,7 +699,8 @@ const Homepage = () => {
                         <div>
                           <button
                             className="btn btn-outline-danger m-1 mt-0"
-                            onClick={closeModal} >
+                            onClick={closeModal}
+                          >
                             X
                           </button>
                         </div>
@@ -913,17 +912,21 @@ const Homepage = () => {
                             className="textfield"
                             label="ExtPorject"
                             variant="outlined"
+
                             style={{ paddingBottom: 15, width: '100%', height: '55px' }}
                             required
                           >
                             <option value="">Select Project</option>
                             {events.slice().reverse().map((option) => (
+
                               <option
                                 key={option.id}
                                 value={option.value}
                                 onClick={() => handleOptionClick(option)}
                               >
+
                                 {option.Project} - {option.From_Time} - {option.To_Time}
+
                               </option>
                             ))}
                           </select>
@@ -992,7 +995,9 @@ const Homepage = () => {
                         </button>
                         <button
                           className="modalBtndelete"
+
                           onClick={closeDuplicateModal}
+
                           style={{ marginBottom: 15 }}
                         >
                           Cancel
@@ -1057,7 +1062,7 @@ const Homepage = () => {
                                 ...newEvent,
                                 Company: e.target.value,
                               });
-                              clearValidationErrors('company'); // Clear validation error for company
+                              clearValidationErrors("company"); // Clear validation error for company
                             }}
                             error={!!assignmentValidationErrors.company}
                             helperText={assignmentValidationErrors.company}
@@ -1073,7 +1078,12 @@ const Homepage = () => {
                             label="Name"
                             variant="outlined"
                             className="textfield"
-                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
+                            style={{
+                              paddingBottom: 15,
+                              width: "100%",
+                              height: "55px",
+                              margin: "0",
+                            }}
                             value={""}
                             onChange={(e) => {
                               const selectedName = e.target.value;
@@ -1081,7 +1091,10 @@ const Homepage = () => {
                               if (!newEvent.Employee.includes(selectedName)) {
                                 setNewEvent((prevEvent) => ({
                                   ...prevEvent,
-                                  Employee: [...prevEvent.Employee, selectedName],
+                                  Employee: [
+                                    ...prevEvent.Employee,
+                                    selectedName,
+                                  ],
                                 }));
 
                                 appendToTextArea(selectedName);
@@ -1099,7 +1112,6 @@ const Homepage = () => {
                               </option>
                             ))}
                           </select>
-
                         </div>
 
                         <div className="col-6">
@@ -1109,7 +1121,12 @@ const Homepage = () => {
                             label="Department"
                             variant="outlined"
                             value={newEvent.Department}
-                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
+                            style={{
+                              paddingBottom: 15,
+                              width: "100%",
+                              height: "55px",
+                              margin: "0",
+                            }}
                             onChange={handleDepartmentChange}
                             error={!!assignmentValidationErrors.department}
                             helperText={assignmentValidationErrors.department}
@@ -1132,13 +1149,24 @@ const Homepage = () => {
                             id="textareaassign"
                             label="textareaassign"
                             variant="outlined"
-                            style={{ paddingBottom: 30, width: "100%", marginBottom: "20%", marginTop: 20, height: "80%" }}
+                            style={{
+                              paddingBottom: 30,
+                              width: "100%",
+                              marginBottom: "20%",
+                              marginTop: 20,
+                              height: "80%",
+                            }}
                             onChange={(e) => {
                               // Split the textarea value into an array of names
-                              const namesFromTextarea = e.target.value.split('\n').filter(Employee => Employee.trim() !== '');
+                              const namesFromTextarea = e.target.value
+                                .split("\n")
+                                .filter((Employee) => Employee.trim() !== "");
 
                               // Update the state with the names from the textarea
-                              setNewEvent({ ...newEvent, Employee: namesFromTextarea });
+                              setNewEvent({
+                                ...newEvent,
+                                Employee: namesFromTextarea,
+                              });
 
                               // Update the textarea content
                               updateTextArea(namesFromTextarea);
@@ -1160,7 +1188,6 @@ const Homepage = () => {
                           className="modalBtndelete"
                           onClick={() => {
                             closeModal(); // Close the "Assign People" modal
-
                           }}
                           style={{ marginBottom: 15 }}
                         >
@@ -1211,7 +1238,6 @@ const Homepage = () => {
                         </button>
 
                         <button
-
                           type="button"
                           onClick={closeModal}
                           className="btn btn-outline-danger m-1 mt-0"
@@ -1251,7 +1277,11 @@ const Homepage = () => {
                         </tbody>
                       </table>
                     </div>
-                    <button type="button" class="btn btn-danger float-xl-end mt-2" onClick={deleteProject}>
+                    <button
+                      type="button"
+                      class="btn btn-danger float-xl-end mt-2"
+                      onClick={deleteProject}
+                    >
                       Delete Project
                     </button>
                   </Modal>
@@ -1291,7 +1321,8 @@ const Homepage = () => {
                         <div>
                           <button
                             className="btn btn-outline-danger m-1 mt-0"
-                            onClick={() => setEditModalIsOpen(false)} >
+                            onClick={() => setEditModalIsOpen(false)}
+                          >
                             X
                           </button>
                         </div>
@@ -1339,7 +1370,12 @@ const Homepage = () => {
                             label="Name"
                             variant="outlined"
                             className="textfield"
-                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
+                            style={{
+                              paddingBottom: 15,
+                              width: "100%",
+                              height: "55px",
+                              margin: "0",
+                            }}
                             value={newEvent.Employee}
                             error={!!assignmentValidationErrors.employee}
                             required
@@ -1359,7 +1395,6 @@ const Homepage = () => {
                               </option>
                             ))}
                           </select>
-
                         </div>
 
                         <div className="col-6">
@@ -1369,7 +1404,12 @@ const Homepage = () => {
                             label="Department"
                             variant="outlined"
                             value={newEvent.Department}
-                            style={{ paddingBottom: 15, width: "100%", height: "55px", margin: "0" }}
+                            style={{
+                              paddingBottom: 15,
+                              width: "100%",
+                              height: "55px",
+                              margin: "0",
+                            }}
                             onChange={handleDepartmentChange}
                             error={!!assignmentValidationErrors.department}
                             helperText={assignmentValidationErrors.department}
@@ -1451,7 +1491,6 @@ const Homepage = () => {
                       >
                         Delete
                       </button>
-
                     </div>
                   </Modal>
                 </div>
